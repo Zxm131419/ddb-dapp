@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>鼎鼎币 DDB · 鼎立乾坤 · 聚财昌隆</title>
+<style>
+/* ============ 五行 · 八卦 · 玄学国风设计 ============ */
+:root{
+  --jin:#FFD700;      /* 金 - 白金 */
+  --mu:#00C896;       /* 木 - 青 */
+  --shui:#2E5BFF;     /* 水 */
+  --huo:#FF4D00;      /* 火 */
+  --tu:#D9A541;       /* 土 */
+  --bg-deep:#0A0E1A;  /* 玄水黑 */
+  --bg-mid:#121A2E;
+  --bg-card:#1A2440;
+  --text:#F5F0E6;
+  --text-dim:#9A8FB0;
+  --gold-line:rgba(255,215,0,0.3);
+  --sep:#2A3560;
+  --red:#E83A4D;
+  --green:#00C896;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{
+  font-family:'Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;
+  background:var(--bg-deep);color:var(--text);
+  max-width:480px;margin:0 auto;min-height:100vh;position:relative;
+  background-image:
+    radial-gradient(ellipse at 20% -10%,rgba(255,215,0,0.06),transparent 50%),
+    radial-gradient(ellipse at 90% 110%,rgba(46,91,255,0.10),transparent 50%);
+  overflow-x:hidden;
+}
+/* 顶部八卦装饰 */
+.bg-bagua{
+  position:fixed;top:-40px;right:-40px;width:180px;height:180px;opacity:0.06;pointer-events:none;z-index:0;
+  background:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="50" font-size="90" text-anchor="middle">☰</text></svg>') center/contain no-repeat;
+}
+/* 页面 */
+.page{display:none;padding-bottom:90px;position:relative;z-index:1}
+.page.active{display:block}
+/* 顶部 */
+.header{
+  background:linear-gradient(135deg,var(--bg-mid),var(--bg-card));
+  border-bottom:1px solid var(--gold-line);
+  padding:14px 16px;display:flex;align-items:center;gap:12px;
+}
+.logo-wrap{width:46px;height:46px;border-radius:50%;overflow:hidden;border:1px solid var(--gold-line);flex-shrink:0;
+  background:radial-gradient(circle,#2A3560,#0A0E1A)}
+.logo-wrap img{width:100%;height:100%;object-fit:cover}
+.brand-fan{flex:1}
+.brand-cn{font-size:20px;font-weight:800;letter-spacing:2px;
+  background:linear-gradient(90deg,var(--jin),var(--huo));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.brand-en{font-size:11px;color:var(--text-dim);letter-spacing:3px}
+.brand-bagua{font-size:16px}
+/* 连接钱包 */
+.btn-connect{
+  background:linear-gradient(135deg,var(--huo),var(--jin));
+  color:#0A0E1A;border:none;border-radius:10px;padding:9px 14px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap
+}
+/* 顶部横幅滑动 */
+.banner{position:relative;margin:12px 14px;border-radius:14px;overflow:hidden;border:1px solid var(--gold-line);height:120px}
+.banner-slide{position:absolute;inset:0;padding:20px;display:none;background:linear-gradient(135deg,var(--bg-card),var(--bg-mid))}
+.banner-slide.active{display:flex;flex-direction:column;justify-content:center}
+.banner-slide .bt{font-size:20px;font-weight:800;color:var(--jin);display:flex;align-items:center;gap:8px}
+.banner-slide .bs{font-size:13px;color:var(--text-dim);margin-top:6px}
+.banner-slide .bb{font-size:11px;margin-top:10px;background:rgba(255,77,0,0.2);color:var(--huo);padding:3px 10px;border-radius:12px;width:fit-content}
+/* 价格卡 */
+.price-card{margin:12px 14px;background:var(--bg-card);border:1px solid var(--gold-line);border-radius:14px;padding:16px}
+.price-row{display:flex;align-items:center;gap:12px}
+.price-icon{width:42px;height:42px;border-radius:50%;overflow:hidden;border:1px solid var(--gold-line);flex-shrink:0}
+.price-icon img{width:100%;height:100%;object-fit:cover}
+.price-label{font-size:12px;color:var(--text-dim)}
+.price-origin{font-size:13px;color:var(--text-dim);margin-top:2px}
+.price-val{font-size:30px;font-weight:800;color:var(--jin);line-height:1.2}
+.price-change{font-size:14px;color:var(--green);margin-left:auto;font-weight:700}
+.price-change.down{color:var(--red)}
+.muted{color:var(--text-dim)!important}
+.up{color:var(--green)!important}
+.down{color:var(--red)!important}
+/* 认购卡 */
+.sub-card{margin:12px 14px;background:linear-gradient(135deg,var(--bg-card),var(--bg-mid));border:1px solid var(--gold-line);border-radius:14px;padding:18px}
+.sub-title{font-size:20px;font-weight:800;text-align:center;background:linear-gradient(90deg,var(--jin),var(--huo));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px}
+.sub-desc{font-size:12px;color:var(--text-dim);text-align:center;margin-bottom:14px}
+.sub-price-row{display:flex;justify-content:space-between;background:rgba(255,255,255,0.03);border-radius:10px;padding:10px 12px;margin-bottom:8px}
+.sub-price-row label{font-size:12px;color:var(--text-dim)}
+.sub-price-row span{font-size:16px;color:var(--jin);font-weight:700}
+.input{width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--sep);border-radius:10px;padding:12px 14px;color:var(--text);font-size:15px;outline:none;margin-bottom:12px}
+.input::placeholder{color:var(--text-dim)}
+.btn{
+  width:100%;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;transition:transform 0.1s;
+}
+.btn:active{transform:scale(0.98)}
+.btn-gold{background:linear-gradient(135deg,var(--jin),var(--huo));color:#0A0E1A}
+.btn-purple{background:linear-gradient(135deg,#7c3aed,#c084fc);color:#fff}
+.btn-green{background:linear-gradient(135deg,var(--mu),#00E68A);color:#0A0E1A}
+.btn-red{background:linear-gradient(135deg,#e83a4d,#ff6b6b);color:#fff}
+.btn:disabled{opacity:0.4}
+/* 首页九宫格 */
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:0 14px;margin-top:14px}
+.grid-item{background:var(--bg-card);border:1px solid var(--gold-line);border-radius:12px;padding:14px 6px;text-align:center;cursor:pointer}
+.g-icon{font-size:26px;margin-bottom:6px}
+.g-label{font-size:12px;color:var(--text)}
+/* 强调 */
+.section-title{font-size:17px;font-weight:700;color:var(--text);margin:18px 14px 10px;display:flex;align-items:center;gap:8px}
+.section-title::before{content:"❖";color:var(--jin)}
+/* 卡片 */
+.card{margin:12px 14px;background:var(--bg-card);border:1px solid var(--gold-line);border-radius:14px;padding:16px}
+/* 交易中心 */
+.tabs{display:flex;margin:0 14px;background:var(--bg-mid);border-radius:10px;overflow:hidden}
+.tab{flex:1;text-align:center;padding:10px;font-size:14px;cursor:pointer;color:var(--text-dim)}
+.tab.active{background:linear-gradient(135deg,var(--jin),var(--huo));color:#0A0E1A;font-weight:700}
+.trade-input-row{display:flex;align-items:center;background:rgba(255,255,255,0.05);border:1px solid var(--sep);border-radius:10px;padding:6px 10px;margin-bottom:12px}
+.trade-input-row .input{border:none;background:transparent;margin:0;flex:1}
+/* 矿机 */
+.miner-status{display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,0.03);border-radius:10px;padding:12px;margin-bottom:10px}
+.stat-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--sep)}
+.stat-row:last-child{border-bottom:none}
+.stat-label{color:var(--text-dim);font-size:13px}
+.stat-val{color:var(--text);font-weight:600;font-size:14px}
+/* 按钮状态 */
+.timer{text-align:center;padding:10px;border-radius:10px;margin-bottom:10px;font-size:13px}
+/* 底部导航 */
+.bnav{
+  position:fixed;bottom:0;left:0;right:0;margin:0 auto;max-width:480px;
+  background:rgba(18,26,46,0.95);backdrop-filter:blur(10px);
+  border-top:1px solid var(--gold-line);display:flex;justify-content:space-around;padding:8px 0 calc(8px + env(safe-area-inset-bottom));z-index:100
+}
+.bnav-item{text-align:center;cursor:pointer;color:var(--text-dim);flex:1}
+.bnav-item .bx{font-size:20px}
+.bnav-item span{display:block;font-size:10px;margin-top:2px}
+.bnav-item.active{color:var(--jin)}
+/* toast */
+#toast{
+  position:fixed;top:18%;left:50%;transform:translateX(-50%);z-index:9999;
+  background:rgba(255,255,255,0.95);color:#0A0E1A;padding:10px 20px;border-radius:10px;
+  font-size:14px;font-weight:600;opacity:0;pointer-events:none;transition:opacity 0.3s;box-shadow:0 8px 30px rgba(0,0,0,0.3)
+}
+#toast.show{opacity:1}
+.toast-green{background:var(--mu)!important}
+/* 节点 */
+.node-perk{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:14px}
+.node-perk .dot{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,215,0,0.15);color:var(--jin);font-size:13px;flex-shrink:0}
+/* 邀请卡 */
+.invite-card{display:flex;align-items:center;gap:10px;background:var(--bg-card);border:1px solid var(--gold-line);border-radius:12px;padding:12px;margin-bottom:8px}
+.invite-card .in{flex:1}
+.invite-card .il{font-size:12px;color:var(--text-dim)}
+.invite-card .iv{font-size:17px;color:var(--jin);font-weight:700;word-break:break-all}
+.invite-copy{background:rgba(255,215,0,0.15);color:var(--jin);border:1px solid var(--gold-line);border-radius:8px;padding:8px 12px;font-size:12px;cursor:pointer;flex-shrink:0}
+/* 副图腾装饰 */
+.totem{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);width:300px;height:300px;opacity:0.03;pointer-events:none;z-index:0;
+  background:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="55" font-size="80" text-anchor="middle">☯</text></svg>') center/contain no-repeat;
+}
+</style>
+</head>
+<body>
+<div class="bg-bagua"></div>
+<div class="totem"></div>
+
+<!-- ============ 首页 ============ -->
+<div id="p-home" class="page active">
+  <div class="header">
+    <div class="logo-wrap"><img src="logo.jpg" alt="DDB"></div>
+    <div class="brand-fan">
+      <div class="brand-cn">鼎鼎币 <span class="brand-bagua">☰</span></div>
+      <div class="brand-en">DING DING BI · DDB</div>
+    </div>
+    <button class="btn-connect" id="connBtn" onclick="connectWallet()">连接钱包</button>
+  </div>
+
+  <div class="banner">
+    <div class="banner-slide active">
+      <div class="bt">☲ 鼎立乾坤 · 聚财昌隆</div>
+      <div class="bs">DDB · 鼎鼎币 · 以鼎聚财 · 五行护运</div>
+      <div class="bb">发行 13,143,186 枚</div>
+    </div>
+    <div class="banner-slide">
+      <div class="bt">☵ 认购即锁 3 倍产能</div>
+      <div class="bs">200U → 3倍产能锁仓 · 递减释放</div>
+      <div class="bb">认购中</div>
+    </div>
+    <div class="banner-slide">
+      <div class="bt">☷ 节点自动分红</div>
+      <div class="bs">10% 分红池 · 节点全网自动平均分配</div>
+      <div class="bb">自动分红</div>
+    </div>
+  </div>
+
+  <div class="price-card">
+    <div class="price-row">
+      <div class="price-icon"><img src="logo.jpg" alt="DDB"></div>
+      <div>
+        <div class="price-label">DDB 当前价格</div>
+        <div class="price-origin">初始价 $0.013</div>
+      </div>
+      <div style="margin-left:auto;text-align:right">
+        <div class="price-val" id="priceVal">$0.013000</div>
+        <div class="price-change up" id="priceChg">+0.00%</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 认购 -->
+  <div class="sub-card">
+    <div class="sub-title">一键认购</div>
+    <div class="sub-desc">认购即销毁 · 3倍产能 · 鼎聚财运</div>
+    <div class="sub-price-row"><label>认购价格</label><span>$0.013 / DDB</span></div>
+    <div class="sub-price-row"><label>3倍产出</label><span>200U → 46154 DDB → 138462 产能</span></div>
+    <input class="input" id="subAmt" type="number" placeholder="输入 USDT 金额(最低 200)" inputmode="decimal">
+    <div style="display:flex;justify-content:space-between;font-size:13px;margin:8px 0 10px">
+      <span style="color:var(--text-dim)">预计获得 DDB (3倍产能)</span>
+      <span style="color:var(--green);font-weight:700" id="subEstimate">0 DDB</span>
+    </div>
+    <button class="btn btn-gold" onclick="subscribeMining()">立即认购</button>
+  </div>
+
+  <!-- 九宫格 -->
+  <div class="grid">
+    <div class="grid-item" onclick="go('trade')"><div class="g-icon">☰</div><div class="g-label">交易中心</div></div>
+    <div class="grid-item" onclick="go('mine')"><div class="g-icon">☱</div><div class="g-label">买矿机</div></div>
+    <div class="grid-item" onclick="go('invite')"><div class="g-icon">☲</div><div class="g-label">邀请</div></div>
+    <div class="grid-item" onclick="go('node')"><div class="g-icon">☴</div><div class="g-label">节点</div></div>
+  </div>
+
+  <div class="section-title">项目机制</div>
+  <div class="card">
+    <div class="stat-row"><span class="stat-label">☳ 每日释放</span><span class="stat-val">当前产能 × 档位日化率</span></div>
+    <div class="stat-row"><span class="stat-label">☶ 领取分账</span><span class="stat-val">80%用户 / 9%节点 / 1%项目 / 10%分红</span></div>
+    <div class="stat-row"><span class="stat-label">☵ 日化率</span><span class="stat-val">0.38% / 0.42% / 0.46% / 0.50%</span></div>
+    <div class="stat-row"><span class="stat-label">☷ 19代加速</span><span class="stat-val">每级10%自动加速</span></div>
+  </div>
+</div>
+
+<!-- ============ 交易中心 ============ -->
+<div id="p-trade" class="page">
+  <div class="header">
+    <div class="logo-wrap"><img src="logo.jpg" alt="DDB"></div>
+    <div class="brand-fan"><div class="brand-cn">☰ 交易中心</div></div>
+    <button class="btn-connect" onclick="connectWallet()">连接钱包</button>
+  </div>
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab(this,'buy')">买入 DDB</button>
+    <button class="tab" onclick="switchTab(this,'sell')">卖出 DDB</button>
+  </div>
+  <div id="marketNotice" style="display:none;margin:10px 0;padding:10px 12px;background:rgba(255,180,0,0.1);border:1px solid rgba(255,180,0,0.35);border-radius:10px;font-size:13px;color:var(--jin)">⏳ 市场尚未启动，交易中心买卖暂时不可用（认购/买矿机/领取正常）。启动后即可交易。</div>
+  <div id="trade-buy">
+    <div class="card">
+      <div class="trade-input-row"><span style="color:var(--text-dim);font-size:13px;margin-right:8px">支付 USDT</span><input id="buyAmt" class="input" type="number" placeholder="输入 USDT 金额"></div>
+      <div class="stat-row"><span class="stat-label">预计获得 DDB</span><span class="stat-val" id="buyPreview">0.00</span></div>
+      <div style="margin-top:12px"><button class="btn btn-green" onclick="doBuy()">确认买入</button></div>
+    </div>
+  </div>
+  <div id="trade-sell" style="display:none">
+    <div class="card">
+      <div class="trade-input-row"><span style="color:var(--text-dim);font-size:13px;margin-right:8px">卖出 DDB</span><input id="sellAmt" class="input" type="number" placeholder="输入 DDB 数量"></div>
+      <div class="stat-row"><span class="stat-label">预计到账 USDT (扣13%)</span><span class="stat-val" id="sellPreview">0.00</span></div>
+      <div style="margin-top:12px"><button class="btn btn-red" onclick="doSell()">确认卖出</button></div>
+    </div>
+  </div>
+  <div style="margin-top:14px">
+    <div class="stat-row stat-label">底池 USDT 总量</div>
+    <div style="font-size:15px;font-weight:700;color:var(--jin)" id="poolUSDT">加载中...</div>
+  </div>
+</div>
+
+<!-- ============ 矿机 ============ -->
+<div id="p-mine" class="page">
+  <div class="header">
+    <div class="logo-wrap"><img src="logo.jpg" alt="DDB"></div>
+    <div class="brand-fan"><div class="brand-cn">☱ 挖矿 · 产能</div></div>
+    <button class="btn-connect" onclick="connectWallet()">连接钱包</button>
+  </div>
+  <div class="card">
+    <div class="miner-status">
+      <div><div class="stat-label">矿机状态</div><div id="minerStatus" class="stat-val">未购买</div></div>
+      <div style="text-align:right"><div class="stat-label">DDB 余额</div><div id="tokBal" class="stat-val">0.0000</div></div>
+    </div>
+    <div class="stat-row"><span class="stat-label">剩余产能</span><span class="stat-val" id="minerCap">0.00</span></div>
+    <div class="stat-row"><span class="stat-label">今日可领</span><span class="stat-val" style="color:var(--jin)" id="minerClaim">0.00 DDB</span></div>
+    <div id="accelRow" style="display:none;margin-top:6px;font-size:12px;color:var(--green)">
+      19代加速 <span id="minerAccelShown" style="font-weight:700;color:var(--green)">0.00 DDB</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="section-title" style="margin:0 0 12px">购买矿机</div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:12px">
+      <span style="color:var(--text-dim);font-size:13px">矿机价格</span>
+      <span style="color:var(--text-dim);font-size:13px">余额: <span id="mineBal">0.0000</span> DDB</span>
+    </div>
+    <div style="position:relative;margin-bottom:10px">
+      <input class="input" id="mineAmt" type="number" placeholder="输入购买数量" inputmode="decimal" style="padding-right:70px;font-size:16px">
+      <button onclick="fillAllDDB()" style="position:absolute;right:4px;top:50%;transform:translateY(-50%);padding:8px 14px;border:none;border-radius:8px;background:var(--bg-mid);color:var(--jin);font-size:13px;font-weight:600;border:1px solid var(--gold-line)">全部</button>
+    </div>
+    <div style="color:var(--text-dim);margin-bottom:14px;font-size:12px">持 DDB 即可购买矿机，自动激活，3倍产能</div>
+    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--sep);font-size:14px">
+      <span style="color:var(--text-dim)">当前价值</span>
+      <span style="font-weight:600" id="mineCurVal">0.0000 USDT</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--sep);font-size:14px">
+      <span style="color:var(--text-dim)">预计基础 DDB</span>
+      <span style="font-weight:600" id="mineEstBase">0.00 DDB</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;padding:8px 0;margin-bottom:16px;font-size:14px">
+      <span style="color:var(--text-dim)">预计挖矿总量</span>
+      <span style="font-weight:600" id="mineEstTotal">0.00 DDB (3倍杠杆)</span>
+    </div>
+    <button class="btn btn-purple" onclick="doBuyMining()">授权购买矿机</button>
+  </div>
+  <div class="card">
+    <div class="section-title" style="margin:0 0 12px">领取收益</div>
+    <div class="timer" id="claimTimer" style="background:rgba(255,255,255,0.03);border:1px solid var(--sep);color:var(--text-dim)">加载中...</div>
+    <button class="btn btn-gold" id="claimBtn" onclick="claimReward()" disabled style="opacity:0.5">领取今日收益</button>
+    <div style="text-align:center;margin-top:8px;font-size:11px;color:var(--text-dim)">领取需要极少量 BNB 作为 gas 费</div>
+    <div style="text-align:center;margin-top:4px;font-size:10px;color:var(--text-dim)" id="accelHint">☳ 19代加速 = 伞下用户领取时从剩余产能加速释放的部分（递减释放，需复投补充）</div>
+  </div>
+  <div class="card">
+    <div class="section-title" style="margin:0 0 12px">复投（3倍产能）</div>
+    <button class="btn btn-green" onclick="reinvest()">复投 (最低1000 DDB)</button>
+  </div>
+  <div class="card" style="background:linear-gradient(135deg,rgba(255,87,34,0.12),rgba(180,77,255,0.10))">
+    <div class="section-title" style="color:var(--jin);margin:0 0 6px">DDB 互转（DApp 内·计业绩）</div>
+    <div style="font-size:12px;color:var(--text-dim);margin-bottom:10px">在 DApp 内互转 DDB：填接收方钱包地址与数量，链上真实划转，自动按当前价折算业绩（解锁19代代数）。业绩额度=实际转出量，不可造假。</div>
+    <input class="input" id="transRecv" type="text" placeholder="接收方钱包地址 (0x...)" style="margin-bottom:8px">
+    <div style="display:flex;gap:8px">
+      <input class="input" id="transAmt" type="number" placeholder="转出 DDB 数量" style="flex:1" oninput="updTransPerf()">
+      <button class="btn btn-gold" style="width:auto;padding:12px 18px;margin:0" onclick="doDDTransfer()">互转并计业绩</button>
+    </div>
+    <div style="display:flex;justify-content:space-between;padding:8px 0;font-size:13px">
+      <span style="color:var(--text-dim)">预计业绩</span><span style="font-weight:700;color:var(--green)" id="transPerfPreview">0 USDT</span>
+    </div>
+    <div style="font-size:11px;color:var(--text-dim);margin-top:4px">需先在钱包授权 DDB 给合约（approve），一次授权可多次互转。</div>
+  </div>
+</div>
+
+<!-- ============ 邀请 ============ -->
+<div id="p-invite" class="page">
+  <div class="header">
+    <div class="logo-wrap"><img src="logo.jpg" alt="DDB"></div>
+    <div class="brand-fan"><div class="brand-cn">☲ 邀请 · 团队</div></div>
+    <button class="btn-connect" onclick="connectWallet()">连接钱包</button>
+  </div>
+  <div class="card">
+    <div class="section-title" style="margin:0 0 12px">绑定上级</div>
+    <input class="input" id="refInput" placeholder="输入上级钱包地址">
+    <button class="btn btn-purple" onclick="bindReferrer()">确认绑定</button>
+  </div>
+  <div class="card">
+    <div class="section-title" style="margin:0 0 12px">我的推广链接</div>
+    <div class="invite-card">
+      <div class="in"><div class="il">推广链接</div><div class="iv" id="inviteLink">连接钱包后显示</div></div>
+      <button class="invite-copy" onclick="copyText()">复制</button>
+    </div>
+    <div class="stat-row"><span class="stat-label">直推人数</span><span class="stat-val" id="directCnt">0</span></div>
+     <div class="stat-row"><span class="stat-label">直推业绩</span><span class="stat-val" id="directAmt">0 USDT</span></div>
+     <div class="stat-row"><span class="stat-label">已解锁代数</span><span class="stat-val" style="color:var(--green)" id="myGen">0</span></div>
+  </div>
+  <div class="card">
+    <div class="section-title" style="margin:0 0 12px">业绩解锁代数（用U投入累计直推业绩）</div>
+    <div style="font-size:12px;margin-bottom:6px">每直推业绩达标，解锁更多代上加速（19代10%加速）</div>
+    <div class="stat-row"><span class="stat-label">200U →</span><span class="stat-val">解锁 3代</span></div>
+    <div class="stat-row"><span class="stat-label">1000U →</span><span class="stat-val">解锁 10代</span></div>
+    <div class="stat-row"><span class="stat-label">2000U →</span><span class="stat-val">解锁 15代</span></div>
+    <div class="stat-row"><span class="stat-label">5000U →</span><span class="stat-val" style="color:var(--jin)">解锁 19代</span></div>
+    <div style="margin-top:8px"><div style="font-size:11px;color:var(--text-dim)" id="genHint">距下一级还差 -- USDT</div></div>
+  </div>
+</div>
+
+<!-- ============ 节点 ============ -->
+<div id="p-node" class="page">
+  <div class="header">
+    <div class="logo-wrap"><img src="logo.jpg" alt="DDB"></div>
+    <div class="brand-fan"><div class="brand-cn">☷ 节点 · 分红</div></div>
+    <button class="btn-connect" onclick="connectWallet()">连接钱包</button>
+  </div>
+  <div class="card">
+    <div class="node-perk"><div class="dot">☷</div><span>激活节点，享伞下团队 9% 收益</span></div>
+    <div class="node-perk"><div class="dot">☵</div><span>10% 分红池，节点全网自动平均分红</span></div>
+    <div class="node-perk"><div class="dot">☶</div><span>一次开通，终生有效</span></div>
+    <div style="margin-top:12px"><button class="btn btn-gold" onclick="activateNode()">激活节点</button></div>
+    <div style="margin-top:10px;text-align:center;background:rgba(0,200,150,0.08);border:1px solid rgba(0,200,150,0.25);border-radius:10px;padding:10px">
+      <div style="font-size:12px;color:var(--text-dim)">可领分红</div>
+      <div style="font-size:22px;color:var(--green);font-weight:800;margin:2px 0"><span id="nodeDivAmt">0.00</span> <span style="font-size:13px">DDB</span></div>
+    </div>
+    <div style="margin-top:10px"><button class="btn btn-green" onclick="claimNodeDiv()">领取节点分红</button></div>
+  </div>
+  <div class="card">
+    <div class="stat-row"><span class="stat-label">节点状态</span><span class="stat-val" id="nodeStatus">未激活</span></div>
+  </div>
+</div>
+
+<!-- ============ 底部导航 ============ -->
+<div class="bnav">
+  <div class="bnav-item active" onclick="go('home')"><div class="bx">☰</div><span>首页</span></div>
+  <div class="bnav-item" onclick="go('trade')"><div class="bx">☲</div><span>交易</span></div>
+  <div class="bnav-item" onclick="go('mine')"><div class="bx">☱</div><span>矿机</span></div>
+  <div class="bnav-item" onclick="go('invite')"><div class="bx">☴</div><span>邀请</span></div>
+  <div class="bnav-item" onclick="go('node')"><div class="bx">☷</div><span>节点</span></div>
+</div>
+
+<div id="toast"></div>
+
+<!-- ============ 功能脚本 ============ -->
+<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+<script>
+const C={
+  chainId:56,
+  rpc:'https://bsc-dataseed1.binance.org:443',
+  tokens:{DDB:'0x0607A5a7F0D0965b89826700756fD6B44284972d',
+          USDT:'0x55d398326f99059fF775485246999027B3197955'},
+  contracts:{referral:'0x8DE1767683D4B3dF78163AD206A7Aeb7527c2D07',  // DDB Proxy
+             token:'0x8DE1767683D4B3dF78163AD206A7Aeb7527c2D07'},
+  pool:'0x768c7DC9A029dab3c2F42D375Dd201DdC35BAf71'
+};
+let provider,signer,addr=null,currentPrice=0.013,userDDB=0,userUSDT=0;
+const $=id=>document.getElementById(id);
+function toast(msg,green=false){const t=$('toast');t.textContent=msg;t.className='show'+(green?' toast-green':'');setTimeout(()=>{t.className='';},2500)}
+function go(page){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  $('p-'+page).classList.add('active');
+  document.querySelectorAll('.bnav-item').forEach(n=>n.classList.remove('active'));
+  const map={home:0,trade:1,mine:2,invite:3,node:4};
+  document.querySelectorAll('.bnav-item')[map[page]].classList.add('active');
+  if(page==='mine'){loadMine();}
+  if(page==='trade'){loadPrice();loadPoolInfo();}
+  if(page==='node'){loadNode();}
+  if(page==='invite'){loadInvite();}
+}
+// 读取底池 USDT 总量
+let marketOn=false;
+async function loadPoolInfo(){
+  try{
+    if(!provider){return}
+    // 市场状态检测
+    try{
+      const bz=new ethers.Contract(C.contracts.referral,['function marketActive() view returns (uint256)'],provider);
+      const ma=await bz.marketActive();
+      marketOn=Number(ma)>0;
+    }catch(e){ marketOn=false; }
+    const notice=document.getElementById('marketNotice');
+    if(notice){ notice.style.display = marketOn ? 'none' : 'block'; }
+    // 底池
+    const us=new ethers.Contract(C.tokens.USDT,['function balanceOf(address) view returns (uint256)'],provider);
+    const bal=await us.balanceOf(C.pool);
+    const el=document.getElementById('poolUSDT');
+    if(el)el.textContent=parseFloat(ethers.utils.formatUnits(bal,18)).toLocaleString(undefined,{maximumFractionDigits:2})+' USDT';
+  }catch(e){
+    const el=document.getElementById('poolUSDT');if(el)el.textContent='—';
+  }
+}
+// 读取直推人数并更新
+async function loadInvite(){
+  if(!addr||!provider)return;
+  try{
+    const biz=new ethers.Contract(C.contracts.referral,[
+      'function getDirectReferralCount(address) view returns (uint256)',
+      'function getDirectReferralAmount(address) view returns (uint256)',
+      'function getUserReferrer(address) view returns (address)',
+      'function getGenerations(address) view returns (uint8)'
+    ],provider);
+    const cnt=await biz.getDirectReferralCount(addr);
+    const dc=$('directCnt');
+    if(dc)dc.textContent=cnt.toString();
+    // 直推业绩 + 解锁代数
+    try{
+      const da=await biz.getDirectReferralAmount(addr);
+      const usd=parseFloat(ethers.utils.formatUnits(da,18));
+      const daEl=$('directAmt');if(daEl)daEl.textContent=usd.toLocaleString(undefined,{maximumFractionDigits:2})+' USDT';
+      const gen=Number(await biz.getGenerations(addr));
+      const genEl=$('myGen');if(genEl)genEl.textContent=gen+'';
+      // 距下一级
+      const tiers=[[0,0],[200,3],[1000,10],[2000,15],[5000,19]];
+      let genHint=$('genHint');
+      if(genHint){let next=null;for(let i=0;i<tiers.length;i++){if(usd<tiers[i][0]){next=tiers[i];break;}}
+        if(next)genHint.textContent='当前 '+gen+' 代 · 距 '+next[0]+'U 解锁 '+next[1]+'代 还差 '+(next[0]-usd).toFixed(2)+' U';
+        else genHint.textContent='已达标 19代（最高）';}
+    }catch(e){}
+    // 上级关系
+    const ref=await biz.getUserReferrer(addr);
+    const refInput=$('refInput');
+    if(refInput&&ref!=='0x0000000000000000000000000000000000000000'&&!refInput.dataset.bound){
+      refInput.value=ref;refInput.dataset.bound='1';
+    }
+  }catch(e){}
+}
+function short(a){return a? a.slice(0,6)+'...'+a.slice(-4):'0x00..00'}
+async function connectWallet(){
+  if(typeof window.ethereum==='undefined'){toast('请在钱包浏览器打开');return}
+  try{
+    provider=new ethers.providers.Web3Provider(window.ethereum);
+    await provider.send('eth_requestAccounts',[]);
+    signer=provider.getSigner();
+    addr=await signer.getAddress();
+    document.querySelectorAll('.btn-connect').forEach(b=>b.innerHTML=short(addr));
+    toast('钱包已连接',true);
+    const link=location.origin+location.pathname+'?ref='+addr;
+    const el=$('inviteLink');if(el)el.textContent=link;
+    loadPrice();loadMine();loadNode();loadBal();loadInvite();loadPoolInfo();
+    // 一键绑定：连接后自动绑定上级（如有pending ref）
+    autoBindPending();
+  }catch(e){toast('连接失败')}
+}
+
+function autoBindPending(){
+  const pending=localStorage.getItem('ddb_pending_ref');
+  if(!pending||!addr)return;
+  // 项目方/自绑跳过
+  if(pending.toLowerCase()===addr.toLowerCase()){localStorage.removeItem('ddb_pending_ref');return;}
+  if(!window.ethereum)return;
+  const V35=C.contracts.referral;
+  const paddedAddr=addr.toLowerCase().replace('0x','').padStart(64,'0');
+  // 先查是否已绑定（原生eth_call）
+  const checkData='0x36144c9a'+paddedAddr; // getUserReferrer
+  window.ethereum.request({method:'eth_call',params:[{to:V35,data:checkData},'latest']}).then((result)=>{
+    const existing='0x'+(result||'').slice(26).toLowerCase();
+    if(existing!=='0x0000000000000000000000000000000000000000'){
+      // 已绑定
+      localStorage.removeItem('ddb_pending_ref');
+      const inputEl=$('refInput');if(inputEl){inputEl.value=existing;inputEl.readOnly=true;}
+      const btn=document.querySelector('button[onclick="bindReferrer()"]');if(btn){btn.textContent='已绑定';btn.disabled=true;}
+      return;
+    }
+    // 未绑定，用原生API发绑定交易（和NNB一致）
+    toast('检测到邀请人,请在钱包确认绑定');
+    const paddedRef=pending.toLowerCase().replace('0x','').padStart(64,'0');
+    const txData='0x04f618cb'+paddedRef; // bindReferrer(address)
+    window.ethereum.request({method:'eth_sendTransaction',params:[{from:addr,to:V35,data:txData}]}).then((txHash)=>{
+      // 用户已点确认、交易已提交 → 立即清pending，避免再次触发
+      localStorage.removeItem('ddb_pending_ref');
+      localStorage.removeItem('ddb_pending_ref_time');
+      toast('绑定关系已提交!');
+      // 后台尝试确认（仅更新提示，不阻塞）
+      try{
+        (async()=>{
+          for(let i=0;i<10;i++){
+            try{
+              const receipt=await window.ethereum.request({method:'eth_getTransactionReceipt',params:[txHash]});
+              if(receipt&&receipt.status==='0x1'){toast('邀请人绑定成功!','success');break;}
+              if(receipt){break;}
+            }catch(e){}
+            await new Promise(r=>setTimeout(r,1200));
+          }
+        })();
+      }catch(e){}
+      // 绑定确认交易已提交后，立即刷新回首页，彻底退出确认弹窗画面（不无限等待）
+      setTimeout(()=>{ location.href=location.origin+location.pathname; },1800);
+    }).catch(e=>{
+      const msg=(e.message||'').toLowerCase();
+      if(msg.includes('denied')||msg.includes('rejected')){localStorage.removeItem('ddb_pending_ref');return;}
+      else toast('自动绑定失败:'+(e.message||'').slice(0,50));
+    });
+  }).catch(e=>{});
+}
+
+async function loadBal(){
+  if(!addr)return;
+  try{
+    const tk=new ethers.Contract(C.tokens.DDB,['function balanceOf(address) view returns (uint256)'],provider);
+    const us=new ethers.Contract(C.tokens.USDT,['function balanceOf(address) view returns (uint256)'],provider);
+    userDDB=parseFloat(ethers.utils.formatUnits(await tk.balanceOf(addr),18));
+    userUSDT=parseFloat(ethers.utils.formatUnits(await us.balanceOf(addr),18));
+    const mb=$('tokBal');if(mb)mb.textContent=userDDB.toFixed(4);
+    const mb2=$('mineBal');if(mb2)mb2.textContent=userDDB.toFixed(4);
+    if(typeof updateMineEstimate==='function')updateMineEstimate();
+  }catch(e){}
+}
+async function loadPrice(){
+  try{
+    const biz=new ethers.Contract(C.contracts.referral,['function currentPrice() view returns (uint256)'],provider);
+    const price=await biz.currentPrice();
+    currentPrice=parseFloat(ethers.utils.formatUnits(price,18));
+    $('priceVal').textContent='$'+currentPrice.toFixed(6);
+    updatePreview();
+  }catch(e){currentPrice=0.013;}
+}
+function updatePreview(){
+  const ba=parseFloat($('buyAmt')?.value)||0;
+  const eb=$('buyPreview');if(eb)eb.textContent=(ba/currentPrice).toFixed(2)+' DDB';
+  const sa=parseFloat($('sellAmt')?.value)||0;
+  const es=$('sellPreview');if(es)es.textContent=(sa*currentPrice*0.87).toFixed(2)+' USDT';
+}
+function switchTab(el,tab){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');
+  $('trade-buy').style.display=tab==='buy'?'':'none';
+  $('trade-sell').style.display=tab==='sell'?'':'none';
+}
+async function loadMine(){
+  if(!addr||!provider)return;
+  try{
+    const biz=new ethers.Contract(C.contracts.referral,[
+      'function users(address) view returns (tuple(bool,bool,uint256,uint256,uint256,uint256,uint256,uint256,uint256,address,uint256,uint256,uint256,uint256,uint256))',
+      'function claimableAmount(address) view returns (uint256)',
+      'function isUserActivated(address) view returns (bool)',
+      'function acceleratedAmount(address) view returns (uint256)',
+      'function getGenerations(address) view returns (uint8)',
+      'function getBoostMultiplier(address) view returns (uint256)',
+      'function getBoostExpireTime(address) view returns (uint256)',
+      'function lastClaimTime(address) view returns (uint256)'
+    ],provider);
+    const u=await biz.users(addr);
+    const act=await biz.isUserActivated(addr);
+    const myBal=parseFloat(ethers.utils.formatUnits(u[5],18));
+    const ca=await biz.claimableAmount(addr);
+    const claim=parseFloat(ethers.utils.formatUnits(ca,18));
+    $('minerStatus').textContent=act?'已激活':'未购买';
+    $('minerCap').textContent=myBal.toLocaleString(undefined,{maximumFractionDigits:2})+' DDB';
+    $('minerClaim').textContent=claim.toLocaleString(undefined,{maximumFractionDigits:2})+' DDB';
+    // 19代加速显示（NNB同款：显示加速金额）
+    let accel=0;let gens=0;
+    try{
+      const accRaw=await biz.acceleratedAmount(addr);
+      accel=parseFloat(ethers.utils.formatUnits(accRaw,18));
+      gens=Number(await biz.getGenerations(addr));
+      const ar=$('accelRow');const as=$('minerAccelShown');
+      if(gens>0||accel>0.005){ar.style.display='block';as.textContent=accel.toLocaleString(undefined,{maximumFractionDigits:2})+' DDB';}
+      else{ar.style.display='none';}
+    }catch(e){}
+    // 状态更新：今日可领/冷却
+    const now=Math.floor(Date.now()/1000);
+    // 24h冷却基准：上次领取时间 lastClaimTime（链上新实现支持，与24h冷却一致）
+    let lastClaim=0;
+    try{ const lct=await biz.lastClaimTime(addr); lastClaim=Number(lct); }catch(e){ lastClaim=Number(u[4]); }
+    updateClaimUI(claim,lastClaim,now);
+  }catch(e){}
+}
+// 更新领取UI（冷却/状态/按钮）
+function fmtCD(s){s=Math.max(0,Math.floor(s));const h=Math.floor(s/3600);const m=Math.floor((s%3600)/60);const r=s%60;return h+'时'+m+'分'+r+'秒';}
+function updateClaimUI(claim,lastClaim,now){
+  const timer=document.getElementById('claimTimer');
+  const btn=document.getElementById('claimBtn');
+  // 冷却优先：24小时才能领一次，基准 = 上次领取时间 lastClaimTime
+  const cooldown=lastClaim>0?(lastClaim+86400)-now:0;
+  if(cooldown>0){
+    timer.textContent='下次领取: '+fmtCD(cooldown);
+    timer.style.color='var(--text-dim)';
+    btn.disabled=true;btn.style.opacity='0.5';btn.textContent='已领取,等待冷却';
+    // 倒计时
+    if(window._claimCd){clearInterval(window._claimCd);}
+    window._claimCd=setInterval(()=>{
+      const remain=lastClaim+86400-Math.floor(Date.now()/1000);
+      const tm=document.getElementById('claimTimer');
+      if(remain<=0){
+        clearInterval(window._claimCd);
+        if(tm){tm.textContent='可领取!立即点击领取';tm.style.color='var(--green)';}
+        const b=document.getElementById('claimBtn');
+        if(b){b.disabled=false;b.style.opacity='1';b.textContent='领取今日收益 ('+claim.toFixed(2)+' DDB)';}
+      }else if(tm){tm.textContent='下次领取: '+fmtCD(remain);}
+    },1000);
+    return;
+  }
+  if(claim<=0){
+    timer.textContent='暂无可领取收益';
+    timer.style.color='var(--text-dim)';
+    btn.disabled=true;btn.style.opacity='0.5';btn.textContent='暂无可领取';
+    return;
+  }
+  timer.textContent='可领取!立即点击领取';
+  timer.style.color='var(--green)';
+  btn.disabled=false;btn.style.opacity='1';
+  btn.textContent='领取今日收益 ('+claim.toFixed(2)+' DDB)';
+}
+// 认购动态估算：输入USDT金额 → 实时显示对应DDB(3倍产能)（NNB同款）
+function updateSubscribeEstimate(){
+  const amt=parseFloat((document.getElementById('subAmt')||{}).value)||0;
+  const el=document.getElementById('subEstimate');
+  if(!el)return;
+  if(amt<=0){el.textContent='0 DDB';return;}
+  // DDB认购价 $0.013/DDB，3倍产能：AMT U → AMT/0.013*3 基础DDB，再×3产能
+  const gotDDB=amt/0.013*3;
+  el.textContent=gotDDB.toLocaleString(undefined,{maximumFractionDigits:0})+' DDB';
+}
+document.addEventListener('input',function(e){if(e.target&&e.target.id==='subAmt')updateSubscribeEstimate();});
+
+async function subscribeMining(){
+  if(!addr){toast('请先连接钱包');return}
+  const amt=parseFloat($('subAmt').value);
+  if(!amt||amt<200){toast('最低认购 200 USDT');return}
+  try{
+    const us=new ethers.Contract(C.tokens.USDT,['function approve(address,uint256)','function allowance(address,address) view returns (uint256)'],signer);
+    const need=ethers.utils.parseUnits(amt.toFixed(6),18);
+    const allow=await us.allowance(addr,C.contracts.referral);
+    if(allow.lt(need)){toast('授权USDT...');const ap=await us.approve(C.contracts.referral,need);await ap.wait();}
+    toast('认购中...');
+    const biz=new ethers.Contract(C.contracts.referral,['function subscribeWithUSDT(uint256)'],signer);
+    const tx=await biz.subscribeWithUSDT(need);
+    await tx.wait();
+    toast('认购成功!3倍产能已锁仓',true);
+    loadMine();loadBal();
+  }catch(e){toast('认购失败: '+(e.reason||e.message).slice(0,60))}
+}
+async function doBuy(){
+  if(!addr){toast('请先连接钱包');return}
+  if(!marketOn){toast('市场尚未启动，暂不可买入',true);return}
+  const amt=parseFloat($('buyAmt').value);
+  if(!amt||amt<=0){toast('请输入金额');return}
+  try{
+    const us=new ethers.Contract(C.tokens.USDT,['function approve(address,uint256)','function allowance(address,address) view returns (uint256)'],signer);
+    const need=ethers.utils.parseUnits(amt.toFixed(6),18);
+    const allow=await us.allowance(addr,C.contracts.referral);
+    if(allow.lt(need)){const ap=await us.approve(C.contracts.referral,need);await ap.wait();}
+    toast('买入中...');
+    const biz=new ethers.Contract(C.contracts.referral,['function buyNNB(uint256)'],signer);
+    const tx=await biz.buyNNB(need);
+    await tx.wait();
+    toast('买入成功!',true);loadBal();
+  }catch(e){toast('买入失败: '+(e.reason||e.message).slice(0,60))}
+}
+async function doSell(){
+  if(!addr){toast('请先连接钱包');return}
+  if(!marketOn){toast('市场尚未启动，暂不可卖出',true);return}
+  const amt=parseFloat($('sellAmt').value);
+  if(!amt||amt<=0){toast('请输入数量');return}
+  if(amt>userDDB){toast('DDB余额不足');return}
+  try{
+    const tk=new ethers.Contract(C.tokens.DDB,['function approve(address,uint256)','function allowance(address,address) view returns (uint256)'],signer);
+    const need=ethers.utils.parseUnits(amt.toFixed(6),18);
+    const allow=await tk.allowance(addr,C.contracts.referral);
+    if(allow.lt(need)){const ap=await tk.approve(C.contracts.referral,need);await ap.wait();}
+    toast('卖出中...');
+    const biz=new ethers.Contract(C.contracts.referral,['function sellNNB(uint256)'],signer);
+    const tx=await biz.sellNNB(need);
+    await tx.wait();
+    toast('卖出成功!USDT已到账',true);loadBal();
+  }catch(e){toast('卖出失败:'+(e.reason||e.message).slice(0,60))}
+}
+function fillAllDDB(){
+  if(userDDB>0){const el=$('mineAmt');if(el)el.value=userDDB.toFixed(4);}else{const el=$('mineAmt');if(el)el.value='0';}
+  updateMineEstimate();
+}
+function updateMineEstimate(){
+  const amt=parseFloat($('mineAmt')?.value)||0;
+  const cv=$('mineCurVal');if(cv)cv.textContent=(amt*currentPrice).toFixed(6)+' USDT';
+  const eb=$('mineEstBase');if(eb)eb.textContent=amt.toFixed(2)+' DDB';
+  const ddb3x=amt*3;
+  const et=$('mineEstTotal');if(et)et.textContent=ddb3x.toFixed(2)+' DDB (3倍杠杆)';
+}
+async function doBuyMining(){
+  if(!addr){toast('请先连接钱包');return}
+  const amt=parseFloat($('mineAmt')?.value);
+  if(!amt||amt<=0){toast('请输入购买数量');return}
+  if(amt>userDDB){toast('DDB余额不足');return}
+  try{
+    const tk=new ethers.Contract(C.tokens.DDB,['function approve(address,uint256)','function allowance(address,address) view returns (uint256)'],signer);
+    const need=ethers.utils.parseUnits(amt.toFixed(6),18);
+    const allow=await tk.allowance(addr,C.contracts.referral);
+    if(allow.lt(need)){const ap=await tk.approve(C.contracts.referral,need);await ap.wait();}
+    toast('购买矿机中...');
+    const biz=new ethers.Contract(C.contracts.referral,['function buyMining(uint256)'],signer);
+    const tx=await biz.buyMining(need);
+    await tx.wait();
+    toast('矿机购买成功!自动激活',true);loadMine();loadBal();
+  }catch(e){toast('购买失败:'+(e.reason||e.message).slice(0,60))}
+}
+// 输入时更新预估
+if(document.getElementById('mineAmt')){
+  document.getElementById('mineAmt').addEventListener('input',updateMineEstimate);
+}
+async function claimReward(){
+  if(!addr){toast('请先连接钱包');return}
+  const btn=document.getElementById('claimBtn');
+  if(btn&&btn.disabled){toast('冷却中,请稍后再领取');return}
+  try{
+    toast('领取中...');
+    const biz=new ethers.Contract(C.contracts.referral,['function claim()'],signer);
+    const tx=await biz.claim();
+    await tx.wait();
+    toast('领取成功!',true);
+    // 领取后刷新产能与状态
+    await loadMine();await loadBal();
+  }catch(e){toast('领取失败:'+(e.reason||e.message).slice(0,60))}
+}
+// ===== DDB DApp 内互转并计业绩（NNB V16 逻辑）=====
+async function doDDTransfer(){
+  if(!signer){toast('请先连接钱包');return}
+  const to=(document.getElementById('transRecv')?.value||'').trim();
+  const amt=parseFloat(document.getElementById('transAmt')?.value);
+  const clean=to.replace(/[\u0000-\u001f\u200b\u200c\u200d\ufeff\s]/g,'');
+  if(!/^0x[0-9a-fA-F]{40}$/.test(clean)){toast('接收地址无效：需 0x+40位hex，请重新粘贴完整地址');return;}
+  if(clean.toLowerCase()===(addr||'').toLowerCase()){toast('接收方不能是自己');return;}
+  if(!amt||amt<=0){toast('请输入转出的DDB数量');return;}
+  try{
+    const refer=C.contracts.referral;
+    const tk=new ethers.Contract(C.tokens.DDB,['function allowance(address,address) view returns(uint256)','function approve(address,uint256)'],signer);
+    const amtWei=ethers.utils.parseUnits(amt.toFixed(6),18);
+    const allow=await tk.allowance(addr,refer);
+    if(allow.lt(amtWei)){
+      toast('请先授权 DDB 给合约(弹窗确认)...');
+      await(await tk.approve(refer,ethers.utils.parseUnits('1000000000',18))).wait();
+      toast('✅ 授权成功，正在互转...');
+    }
+    const ref=new ethers.Contract(refer,['function transferAndRecord(address,uint256) external returns(bool)'],signer);
+    const tx=await ref.transferAndRecord(clean,amtWei,{gasLimit:400000});
+    toast('互转中...');
+    await tx.wait();
+    toast('✅ 已互转 '+amt+' DDB，业绩已上线');
+    loadMine();loadBal();loadInvite();
+  }catch(e){
+    const msg=e.reason||e.message||'';
+    if(msg.includes('not active')){toast('请先购买矿机激活账户')}
+    else if(msg.includes('bad addr')){toast('接收方地址不合法或为自己')}
+    else if(msg.includes('tf fail')||msg.includes('exceed')||msg.includes('allowance')){toast('余额不足或授权失败，请检查钱包DDB与授权')}
+    else if(msg.includes('denied')||msg.includes('reject')){toast('已取消')}
+    else{toast('失败: '+(msg.slice(0,60)))}
+  }
+}
+function updTransPerf(){const a=parseFloat(document.getElementById('transAmt')?.value)||0;const el=document.getElementById('transPerfPreview');if(el)el.textContent=(a*currentPrice).toFixed(4)+' USDT'}
+async function reinvest(){
+  if(!addr){toast('请先连接钱包');return}
+  const amt=1000;
+  try{
+    toast('复投中(1000 DDB)...');
+    const biz=new ethers.Contract(C.contracts.referral,['function reinvest(uint256)'],signer);
+    const tx=await biz.reinvest(ethers.utils.parseUnits('1000',18));
+    await tx.wait();
+    toast('复投成功!3倍产能',true);loadMine();
+  }catch(e){toast('复投失败:'+(e.reason||e.message).slice(0,60))}
+}
+async function bindReferrer(){
+  if(!addr){toast('请先连接钱包');return}
+  let ref=$('refInput').value.trim();
+  if(!ref||ref.length<42){toast('请输入上级地址');return}
+  // 地址规范化
+  if(!/^0x[a-fA-F0-9]{40}$/.test(ref)){toast('上级地址格式不正确');return;}
+  if(ref.toLowerCase()===addr.toLowerCase()){toast('不能绑定自己为上级');return;}
+  try{
+    // 非只读：真正发起绑定
+    toast('绑定中...');
+    const biz=new ethers.Contract(C.contracts.referral,['function bindReferrer(address)'],signer);
+    const tx=await biz.bindReferrer(ref);
+    await tx.wait();
+    // 绑定成功，清除pending
+    localStorage.removeItem('ddb_pending_ref');
+    toast('绑定成功!','success');
+    if(typeof loadMine==='function')loadMine();
+  }catch(e){
+    const msg=(e.reason||e.message||'').toLowerCase();
+    if(msg.includes('bound')||msg.includes('already')){toast('该账号已绑定过上级','');localStorage.removeItem('ddb_pending_ref');}
+    else toast('绑定失败:'+(e.reason||e.message||'').slice(0,60));
+  }
+}
+async function loadNode(){
+  if(!addr||!provider)return;
+  try{
+    const biz=new ethers.Contract(C.contracts.referral,['function isNode(address) view returns (bool)','function nodeDividendClaimable(address) view returns (uint256)'],provider);
+    const isN=await biz.isNode(addr);
+    $('nodeStatus').textContent=isN?'已激活节点':'未激活';
+    try{
+      const div=await biz.nodeDividendClaimable(addr);
+      const dAmt=$('nodeDivAmt');if(dAmt)dAmt.textContent=parseFloat(ethers.utils.formatUnits(div,18)).toLocaleString(undefined,{maximumFractionDigits:2});
+      if(div>0&&isN){toast('有可领分红 '+ethers.utils.formatUnits(div,18).slice(0,6),true)}
+    }catch(e){}
+  }catch(e){}
+}
+async function activateNode(){
+  if(!addr){toast('请先连接钱包');return}
+  try{
+    // 按合约当前节点费动态授权（节点费会每月+100，封顶2000）
+    const viewBiz=new ethers.Contract(C.contracts.referral,['function currentNodeFee(uint256) view returns (uint256)','function nodeBaseFee() view returns (uint256)','function nodeFeeCap() view returns (uint256)'],provider);
+    const nowTs=Math.floor(Date.now()/1000);
+    let fee;
+    try{ fee=await viewBiz.currentNodeFee(nowTs); }
+    catch(e2){ fee=await viewBiz.nodeBaseFee(); }
+    const feeUsd=parseFloat(ethers.utils.formatUnits(fee,18));
+    toast('节点费 '+feeUsd+' USDT，请在钱包确认');
+    const us=new ethers.Contract(C.tokens.USDT,['function approve(address,uint256)','function allowance(address,address) view returns (uint256)'],signer);
+    const allow=await us.allowance(addr,C.contracts.referral);
+    if(allow.lt(fee)){const ap=await us.approve(C.contracts.referral,fee);await ap.wait();}
+    toast('激活节点中...');
+    const biz=new ethers.Contract(C.contracts.referral,['function activateNode()'],signer);
+    const tx=await biz.activateNode();
+    await tx.wait();
+    toast('节点激活成功!',true);loadNode();
+  }catch(e){toast('激活失败:'+(e.reason||e.message).slice(0,60))}
+}
+async function claimNodeDiv(){
+  if(!addr){toast('请先连接钱包');return}
+  try{
+    const biz=new ethers.Contract(C.contracts.referral,['function claimNodeDividend()'],signer);
+    const tx=await biz.claimNodeDividend();
+    await tx.wait();
+    toast('分红已领取!',true);loadNode();
+  }catch(e){toast('分红失败:'+(e.reason||e.message).slice(0,60))}
+}
+function copyText(){
+  const el=$('inviteLink');
+  if(!el||el.textContent==='连接钱包后显示'){toast('请先连接钱包');return}
+  const text=el.textContent;  // 完整链接
+  // 兼容 TokenPocket 等内置浏览器
+  try{
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text||el.textContent).then(()=>toast('已复制','success')).catch(()=>{fallbackCopy(text||el.textContent);});
+    }else{
+      fallbackCopy(text||el.textContent);
+    }
+  }catch(e){
+    fallbackCopy(text||el.textContent);
+  }
+}
+function fallbackCopy(text){
+  try{
+    const ta=document.createElement('textarea');
+    ta.value=text;
+    ta.style.position='fixed';
+    ta.style.left='-9999px';
+    ta.style.top='0';
+    document.body.appendChild(ta);
+    ta.focus();ta.select();
+    const ok=document.execCommand('copy');
+    document.body.removeChild(ta);
+    if(ok){toast('已复制','success')}else{toast('复制失败,请长按链接手动复制')}
+  }catch(e){toast('复制失败,请长按链接手动复制')}
+}
+// 自动检测推荐参数
+function checkReferralLink(){
+  const url=new URLSearchParams(window.location.search);
+  const ref=url.get('ref');
+  if(ref&&ref.startsWith('0x')&&ref.length>=40){
+    const refLower=ref.toLowerCase();
+    if(refLower===addr)return;
+    // 保存到 localStorage（一键绑定用）
+    localStorage.setItem('ddb_pending_ref',refLower);
+    localStorage.setItem('ddb_pending_ref_time',Date.now().toString());
+    // 填入输入框
+    const el=$('refInput');if(el){el.value=refLower;}
+    toast('检测到邀请人，连接钱包后可一键绑定');
+    return refLower;
+  }
+  return null;
+}
+
+window.addEventListener('load',()=>{
+  const pending=checkReferralLink();
+  if(typeof window.ethereum!=='undefined'){
+    connectWallet();
+    // 连接后延迟触发自动绑定
+    setTimeout(()=>{if(pending)autoBindPending();},3000);
+  }
+});
+// 输入时更新预览
+['buyAmt','sellAmt'].forEach(id=>{document.addEventListener('input',e=>{if(e.target.id===id)updatePreview()})});
+</script>
+
+</body>
+</html>
