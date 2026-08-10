@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>鼎鼎币 DDB 管理后台</title>
+<style>
+:root{--jin:#FFD700;--mu:#00C896;--shui:#2E5BFF;--huo:#FF4D00;--tu:#D9A541;--bg-deep:#0A0E1A;--bg-mid:#121A2E;--bg-card:#1A2440;--text:#F5F0E6;--text-dim:#9A8FB0;--gold-line:rgba(255,215,0,0.3);--sep:#2A3560}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Noto Sans SC','Microsoft YaHei',sans-serif;background:var(--bg-deep);color:var(--text);max-width:520px;margin:0 auto;min-height:100vh;background-image:radial-gradient(ellipse at 20% -10%,rgba(255,215,0,0.06),transparent 50%),radial-gradient(ellipse at 90% 110%,rgba(46,91,255,0.10),transparent 50%)}
+.header{background:linear-gradient(135deg,var(--bg-mid),var(--bg-card));border-bottom:1px solid var(--gold-line);padding:14px 16px;display:flex;align-items:center;gap:12px}
+.logo-wrap{width:44px;height:44px;border-radius:50%;overflow:hidden;border:1px solid var(--gold-line);flex-shrink:0}
+.logo-wrap img{width:100%;height:100%;object-fit:cover}
+.brand-cn{font-size:20px;font-weight:800;background:linear-gradient(90deg,var(--jin),var(--huo));-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:2px}
+.brand-en{font-size:11px;color:var(--text-dim);letter-spacing:3px}
+.btn-connect{background:linear-gradient(135deg,var(--huo),var(--jin));border:none;border-radius:10px;padding:9px 14px;font-size:12px;font-weight:700;color:#0A0E1A;cursor:pointer;margin-left:auto;white-space:nowrap}
+.section-title{font-size:17px;font-weight:700;margin:18px 14px 10px;display:flex;align-items:center;gap:8px}
+.section-title::before{content:"☯";color:var(--jin)}
+.card{margin:12px 14px;background:var(--bg-card);border:1px solid var(--gold-line);border-radius:14px;padding:16px}
+.stat-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--sep);font-size:13px}
+.stat-row:last-child{border-bottom:none}
+.stat-label{color:var(--text-dim)}
+.stat-val{color:var(--jin);font-weight:600}
+.input{width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--sep);border-radius:10px;padding:11px 13px;color:var(--text);font-size:14px;outline:none;margin-bottom:10px}
+.input::placeholder{color:var(--text-dim)}
+.btn{width:100%;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;transition:transform 0.1s}
+.btn:active{transform:scale(0.98)}
+.btn-gold{background:linear-gradient(135deg,var(--jin),var(--huo));color:#0A0E1A}
+.btn-purple{background:linear-gradient(135deg,#7c3aed,#c084fc);color:#fff}
+.btn-green{background:linear-gradient(135deg,var(--mu),#00E68A);color:#0A0E1A}
+.btn-red{background:linear-gradient(135deg,#e83a4d,#ff6b6b);color:#fff}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.field-row{display:flex;gap:8px;align-items:center;margin-bottom:10px}
+.field-row label{color:var(--text-dim);font-size:13px;width:86px;flex-shrink:0}
+.field-row .input{flex:1;margin:0}
+.btn-mini{padding:10px;font-size:13px;border-radius:8px;flex-shrink:0;width:auto}
+#status{position:fixed;top:18%;left:50%;transform:translateX(-50%);z-index:9999;background:rgba(255,255,255,0.95);color:#0A0E1A;padding:10px 20px;border-radius:10px;font-size:14px;font-weight:600;opacity:0;pointer-events:none;transition:opacity 0.3s;box-shadow:0 8px 30px rgba(0,0,0,0.3)}
+#status.show{opacity:1}#status.success{background:var(--mu)}#status.error{background:#e83a4d;color:#fff}
+.query-result{background:rgba(255,255,255,0.03);border-radius:10px;padding:10px;margin-top:10px;font-size:12px}
+.query-result .row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
+.admin-tabs{display:flex;margin:0 14px;background:var(--bg-mid);border-radius:10px;overflow:hidden;flex-wrap:wrap}
+.admin-tab{flex:1;min-width:80px;text-align:center;padding:10px;font-size:12px;cursor:pointer;color:var(--text-dim)}
+.admin-tab.active{background:linear-gradient(135deg,var(--jin),var(--huo));color:#0A0E1A;font-weight:700}
+.admin-panel{display:none}.admin-panel.active{display:block}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="logo-wrap"><img src="logo.jpg" alt="DDB"></div>
+  <div><div class="brand-cn">鼎鼎币 · 管理后台</div><div class="brand-en">DDB ADMIN</div></div>
+  <button class="btn-connect" onclick="connectWallet()">连接管理钱包</button>
+</div>
+<div class="card">
+  <div style="font-size:13px;color:var(--text-dim);margin-bottom:6px">合约状态</div>
+  <div class="stat-row"><span class="stat-label">Owner</span><span class="stat-val" id="ownerVal">--</span></div>
+  <div class="stat-row"><span class="stat-label">当前价</span><span class="stat-val" id="priceVal">--</span></div>
+  <div class="stat-row"><span class="stat-label">总用户</span><span class="stat-val" id="totalCnt">--</span></div>
+  <div class="stat-row"><span class="stat-label">当前模式</span><span class="stat-val" id="modeVal">--</span></div>
+</div>
+<div class="admin-tabs">
+  <div class="admin-tab active" onclick="showPanel(this,'panel-user')">用户</div>
+  <div class="admin-tab" onclick="showPanel(this,'panel-issue')">发币/钱包</div>
+  <div class="admin-tab" onclick="showPanel(this,'panel-price')">价格/市场</div>
+  <div class="admin-tab" onclick="showPanel(this,'panel-node')">节点费</div>
+  <div class="admin-tab" onclick="showPanel(this,'panel-fee')">分账/手续费</div>
+  <div class="admin-tab" onclick="showPanel(this,'panel-miner')">矿机/加速</div>
+  <div class="admin-tab" onclick="showPanel(this,'panel-market')">模式</div>
+</div>
+
+<div class="admin-panel active" id="panel-user">
+  <div class="card">
+    <div class="field-row"><label>钱包地址</label><input class="input" id="qAddr" placeholder="0x..."></div>
+    <button class="btn btn-purple" onclick="queryUser()">查询用户信息</button>
+    <div class="query-result" id="userResult">输入地址查询</div>
+  </div>
+  <div class="card">
+    <div style="font-size:14px;font-weight:700;margin-bottom:10px">激活/节点/等级</div>
+    <input class="input" id="setAddr" placeholder="目标钱包地址">
+    <div class="grid-2" style="margin-bottom:10px">
+      <button class="btn btn-green btn-mini" onclick="setActive()">设为激活</button>
+      <button class="btn btn-red btn-mini" onclick="setInactive()">取消激活</button>
+      <button class="btn btn-green btn-mini" onclick="setNode()">设为节点</button>
+      <button class="btn btn-red btn-mini" onclick="unsetNode()">取消节点</button>
+    </div>
+    <div class="field-row"><label>等级(代数)</label><input class="input" id="setLevel" type="number" placeholder="如19"><button class="btn btn-purple btn-mini" onclick="setLevel()">设置</button></div>
+    <button class="btn btn-gold" onclick="unburn()">恢复烧伤</button>
+  </div>
+</div>
+
+<div class="admin-panel" id="panel-issue">
+  <div class="card">
+    <div style="font-size:14px;font-weight:700;margin-bottom:10px">直接发币给用户</div>
+    <input class="input" id="distAddr" placeholder="目标钱包地址">
+    <input class="input" id="distAmt" type="number" placeholder="发币数量 (DDB)">
+    <button class="btn btn-gold" onclick="distribute()">发币</button>
+  </div>
+  <div class="card">
+    <div style="font-size:14px;font-weight:700;margin-bottom:10px">配置钱包</div>
+    <div class="field-row"><label>认购1</label><input class="input" id="wSub1" value="0xc83B5457188393eC54810A199CF821022b2f94fb"><button class="btn btn-purple btn-mini" onclick="setW('setSubscribeWallet1','wSub1')">设</button></div>
+    <div class="field-row"><label>认购2</label><input class="input" id="wSub2" value="0x5896EFB317A61DFF73A1c509e31c95Aa4F508218"><button class="btn btn-purple btn-mini" onclick="setW('setSubscribeWallet2','wSub2')">设</button></div>
+    <div class="field-row"><label>节点1</label><input class="input" id="wNode1" value="0xe8B14666ed1937B6043300C8Cef85D1629134Ce5"><button class="btn btn-purple btn-mini" onclick="setW('setNodeWallet1','wNode1')">设</button></div>
+    <div class="field-row"><label>节点2</label><input class="input" id="wNode2" value="0x9Eb749C836166a8Bc407AC2584D2d9AcFA9CD6bd"><button class="btn btn-purple btn-mini" onclick="setW('setNodeWallet2','wNode2')">设</button></div>
+    <div class="field-row"><label>底池</label><input class="input" id="wPool" value="0x768c7DC9A029dab3c2F42D375Dd201DdC35BAf71"><button class="btn btn-purple btn-mini" onclick="setW('setPoolWallet','wPool')">设</button></div>
+    <div class="field-row"><label>项目方</label><input class="input" id="wProj" value="0xD71A230fBf66C659F2b6d6Fc2A927D75A2D7b43A"><button class="btn btn-purple btn-mini" onclick="setW('setProjectWallet','wProj')">设</button></div>
+  </div>
+</div>
+
+<div class="admin-panel" id="panel-price">
+  <div class="card">
+    <div style="font-size:14px;font-weight:700;margin-bottom:10px">价格配置</div>
+    <div class="field-row"><label>当前价($)</label><input class="input" id="setPriceIn" type="number" placeholder="如0.015"><button class="btn btn-purple btn-mini" onclick="setPrice()">设价</button></div>
+    <div class="field-row"><label>涨幅(基点)</label><input class="input" id="setRateIn" type="number" placeholder="5=0.5%"><button class="btn btn-purple btn-mini" onclick="setRate()">设涨幅</button></div>
+    <div class="grid-2">
+      <button class="btn btn-green" onclick="startMarket()">启动市场</button>
+      <button class="btn btn-red" onclick="stopMarket()">暂停市场</button>
+    </div>
+  </div>
+</div>
+
+<div class="admin-panel" id="panel-node">
+  <div class="card">
+    <div style="font-size:14px;font-weight:700;margin-bottom:10px">节点费配置</div>
+    <div class="field-row"><label>基础费$</label><input class="input" id="nodeBase" value="500"><button class="btn btn-purple btn-mini" onclick="setVal('setNodeBaseFee','nodeBase',true)">设</button></div>
+    <div class="field-row"><label>月涨$</label><input class="input" id="nodeInc" value="100"><button class="btn btn-purple btn-mini" onclick="setVal('setNodeFeeIncrease','nodeInc',true)">设</button></div>
+    <div class="field-row"><label>封顶$</label><input class="input" id="nodeCap" value="2000"><button class="btn btn-purple btn-mini" onclick="setVal('setNodeFeeCap','nodeCap',true)">设</button></div>
+    <div class="stat-row"><span class="stat-label">当前节点费</span><span class="stat-val" id="curNodeFee">--</span></div>
+  </div>
+</div>
+
+<div class="admin-panel" id="panel-fee">
+  <div class="card">
+    <div style="font-size:14px;font-weight:700;margin-bottom:10px">领取分账(千分: 用户/节点/项目/分红)</div>
+    <input class="input" id="rateUser" value="800"><input class="input" id="rateNode" value="90"><input class="input" id="rateProj" value="10"><input class="input" id="rateBurn" value="100">
+    <button class="btn btn-purple" onclick="setRates()">设置分账</button>
+    <div style="margin-top:10px;font-size:12px;color:var(--text-dim)">当前 80/9/1/10</div>
+  </div>
+  <div class="card">
+    <div style="font-size:14px;font-weight:700;margin-bottom:10px">交易手续费(千分)</div>
+    <div class="field-row"><label>手续费‰</label><input class="input" id="tradeFee" value="130"><button class="btn btn-purple btn-mini" onclick="setVal('setTradeFeeRate','tradeFee',false)">设</button></div>
+  </div>
+</div>
+
+<div class="admin-panel" id="panel-miner">
+  <div class="card">
+    <div style="font-size:14px;font-weight:700;margin-bottom:10px">矿机/加速配置</div>
+    <div class="field-row"><label>矿机门槛DDB</label><input class="input" id="minBuy" value="2000"><button class="btn btn-purple btn-mini" onclick="setVal('setMinBuyMining','minBuy',true)">设</button></div>
+    <div class="field-row"><label>加速比例‰</label><input class="input" id="accelRate" value="100"><button class="btn btn-purple btn-mini" onclick="setVal('setAccelRate','accelRate',false)">设</button></div>
+    <div class="field-row"><label>加速代数</label><input class="input" id="accelGen" value="19"><button class="btn btn-purple btn-mini" onclick="setVal('setAccelGenerations','accelGen',false)">设</button></div>
+  </div>
+</div>
+
+<div class="admin-panel" id="panel-market">
+  <div class="card">
+    <div style="font-size:14px;font-weight:700;margin-bottom:10px">交易模式</div>
+    <div class="grid-2">
+      <button class="btn btn-gold" onclick="setMode(0)">系统价交易</button>
+      <button class="btn btn-green" onclick="setMode(1)">市场撮合</button>
+    </div>
+    <div style="margin-top:10px;font-size:12px;color:var(--text-dim)">0=系统价,1=撮合(阶段2)</div>
+  </div>
+</div>
+
+<div id="status"></div>
+<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+<script>
+const C={rpc:'https://bsc-dataseed1.binance.org:443',proxy:'0x8DE1767683D4B3dF78163AD206A7Aeb7527c2D07'};
+let provider,signer,addr=null;
+const $=id=>document.getElementById(id);
+function toast(msg,type){const s=$('status');s.textContent=msg;s.className='show '+(type||'');setTimeout(()=>{s.className=''},2500)}
+function validAddr(id){
+  const _v=$(id).value.trim();
+  if(!_v){toast('请填写钱包地址','error');return null;}
+  if(!/^0x[a-fA-F0-9]{40}$/.test(_v)){toast('地址格式不正确，请填0x开头的地址','error');return _v;}
+  return _v;
+}
+function showPanel(el,id){document.querySelectorAll('.admin-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');document.querySelectorAll('.admin-panel').forEach(p=>p.classList.remove('active'));$(id).classList.add('active')}
+async function connectWallet(){
+  if(typeof window.ethereum==='undefined'){toast('请在钱包浏览器打开');return}
+  try{
+    provider=new ethers.providers.Web3Provider(window.ethereum);
+    await provider.send('eth_requestAccounts',[]);
+    signer=provider.getSigner();addr=await signer.getAddress();
+    $('ownerVal').textContent=addr.slice(0,6)+'...'+addr.slice(-4);
+    toast('管理钱包已连接','success');await loadContractInfo();
+  }catch(e){toast('连接失败','error')}
+}
+async function loadContractInfo(){
+  if(!provider)return;
+  try{
+    const biz=new ethers.Contract(C.proxy,['function currentPrice() view returns (uint256)','function getAllUsersCount() view returns (uint256)','function tradingMode() view returns (uint256)','function claimUserRate() view returns (uint256)','function claimNodeRate() view returns (uint256)','function claimProjectRate() view returns (uint256)','function claimBurnRate() view returns (uint256)','function tradeFeeRate() view returns (uint256)','function currentNodeFee(uint256) view returns (uint256)','function nodeBaseFee() view returns (uint256)','function nodeFeeMonthlyIncrease() view returns (uint256)','function nodeFeeCap() view returns (uint256)'],provider);
+    $('priceVal').textContent='$'+ethers.utils.formatUnits(await biz.currentPrice(),18);
+    $('totalCnt').textContent=(await biz.getAllUsersCount()).toString();
+    $('modeVal').textContent=await biz.tradingMode()==0?'系统价':'撮合';
+    $('curNodeFee').textContent='$'+ethers.utils.formatUnits(await biz.currentNodeFee(Math.floor(Date.now()/1000)),18);
+    $('rateUser').value=await biz.claimUserRate();$('rateNode').value=await biz.claimNodeRate();$('rateProj').value=await biz.claimProjectRate();$('rateBurn').value=await biz.claimBurnRate();
+    $('tradeFee').value=await biz.tradeFeeRate();
+    $('nodeBase').value=ethers.utils.formatUnits(await biz.nodeBaseFee(),18);$('nodeInc').value=ethers.utils.formatUnits(await biz.nodeFeeMonthlyIncrease(),18);$('nodeCap').value=ethers.utils.formatUnits(await biz.nodeFeeCap(),18);
+    $('setPriceIn').value=ethers.utils.formatUnits(await biz.currentPrice(),18);
+  }catch(e){}
+}
+async function caller(fn,type,val){
+  if(!signer){toast('请先连接钱包','error');return false}
+  try{const biz=new ethers.Contract(C.proxy,[`function ${fn}() external`],signer);}
+  catch(e){}
+  try{
+    const abi=type==='address'?[`function ${fn}(${type})`]:[`function ${fn}(${type})`];
+    const biz=new ethers.Contract(C.proxy,abi,signer);
+    const tx=type==='address'?await biz[fn](val):type==='uint256'?await biz[fn](val):await biz[fn](val);
+    await tx.wait();toast(fn+' 成功','success');await loadContractInfo();return true;
+  }catch(e){toast('失败:'+(e.reason||e.message).slice(0,80),'error');return false}
+}
+async function setW(fn,id){const a=$(id).value.trim();if(!a){toast('请输入地址','error');return}try{const c=new ethers.Contract(C.proxy,[`function ${fn}(address)`],signer);const tx=await c[fn](a);await tx.wait();toast(fn+'成功','success');await loadContractInfo()}catch(e){toast('失败:'+e.reason||e.message,'error')}}
+async function setVal(fn,id,isU){const v=$(id).value;try{const c=new ethers.Contract(C.proxy,[`function ${fn}(uint256)`],signer);const tx=isU?await c[fn](ethers.utils.parseUnits(v,18)):await c[fn](v);await tx.wait();toast(fn+'成功','success');await loadContractInfo()}catch(e){toast('失败:'+(e.reason||e.message).slice(0,80),'error')}}
+async function queryUser(){
+  if(!provider){toast('请先连接钱包','error');return}
+  const a=$('qAddr').value.trim();if(!a){toast('请输入地址','error');return}
+  try{
+    const biz=new ethers.Contract(C.proxy,['function users(address) view returns (tuple(bool,bool,uint256,uint256,uint256,uint256,uint256,uint256,uint256,address,uint256,uint256,uint256,uint256,uint256))','function claimableAmount(address) view returns (uint256)'],provider);
+    const u=await biz.users(a);const ca=await biz.claimableAmount(a);
+    const f=x=>ethers.utils.formatUnits(x,18);
+    $('userResult').innerHTML=
+      '<div class="row"><span>激活</span><span>'+(u[0]?'✅是':'否')+'</span></div>'+
+      '<div class="row"><span>节点</span><span>'+(u[1]?'✅是':'否')+'</span></div>'+
+      '<div class="row"><span>等级/代数(激活几代)</span><span>'+u[7].toString()+'</span></div>'+
+      '<div class="row"><span>累计投入</span><span>'+Number(f(u[2])).toFixed(2)+'U</span></div>'+
+      '<div class="row"><span>已产出</span><span>'+Number(f(u[3])).toFixed(2)+'</span></div>'+
+      '<div class="row"><span>剩余产能</span><span>'+Number(f(u[5])).toLocaleString()+'</span></div>'+
+      '<div class="row"><span>今日可领</span><span>'+Number(f(ca)).toFixed(2)+'</span></div>'+
+      '<div class="row"><span>复投/提现</span><span>'+u[10]+'/'+u[11]+'</span></div>';
+  }catch(e){toast('查询失败:'+e.message.slice(0,80),'error')}
+}
+async function setActive(){const a=validAddr('setAddr');if(!a)return;try{const c=new ethers.Contract(C.proxy,['function adminSetActive(address,bool)'],signer);const tx=await c.adminSetActive(a,true);await tx.wait();toast('已激活','success')}catch(e){toast('失败:'+(e.reason||e.message).slice(0,80),'error')}}
+async function setInactive(){const a=validAddr('setAddr');if(!a)return;try{const c=new ethers.Contract(C.proxy,['function adminSetActive(address,bool)'],signer);const tx=await c.adminSetActive(a,false);await tx.wait();toast('已取消激活','success')}catch(e){toast('失败:'+(e.reason||e.message).slice(0,80),'error')}}
+async function setNode(){const a=validAddr('setAddr');if(!a)return;try{const c=new ethers.Contract(C.proxy,['function adminSetNode(address,bool)'],signer);const tx=await c.adminSetNode(a,true);await tx.wait();toast('已设节点','success')}catch(e){toast('失败:'+(e.reason||e.message).slice(0,80),'error')}}
+async function unsetNode(){const a=validAddr('setAddr');if(!a)return;try{const c=new ethers.Contract(C.proxy,['function adminSetNode(address,bool)'],signer);const tx=await c.adminSetNode(a,false);await tx.wait();toast('已取消节点','success')}catch(e){toast('失败:'+(e.reason||e.message).slice(0,80),'error')}}
+async function setLevel(){const a=validAddr('setAddr');if(!a)return;const lv=parseInt($('setLevel').value);if(!lv||lv<1){toast('请填有效的等级(代数)','error');return;}try{const c=new ethers.Contract(C.proxy,['function adminSetUserLevel(address,uint256)'],signer);const tx=await c.adminSetUserLevel(a,lv);await tx.wait();toast('等级设置成功','success')}catch(e){toast('失败:'+(e.reason||e.message).slice(0,80),'error')}}
+async function unburn(){const a=validAddr('setAddr');if(!a)return;try{const c=new ethers.Contract(C.proxy,['function adminUnburn(address)'],signer);const tx=await c.adminUnburn(a);await tx.wait();toast('已恢复','success')}catch(e){toast('失败:'+(e.reason||e.message).slice(0,80),'error')}}
+async function distribute(){const a=validAddr('distAddr');if(!a)return;const amt=$('distAmt').value;if(!parseFloat(amt)){toast('请填发币数量','error');return;}try{const c=new ethers.Contract(C.proxy,['function adminDistribute(address,uint256)'],signer);const tx=await c.adminDistribute(a,ethers.utils.parseUnits(amt,18));await tx.wait();toast('发币成功','success')}catch(e){toast('失败:'+(e.reason||e.message).slice(0,80),'error')}}
+async function setPrice(){try{const c=new ethers.Contract(C.proxy,['function setPrice(uint256)'],signer);const tx=await c.setPrice(ethers.utils.parseUnits($('setPriceIn').value,18));await tx.wait();toast('价格已设','success');await loadContractInfo()}catch(e){toast('失败:'+e.reason||e.message,'error')}}
+async function setRate(){try{const c=new ethers.Contract(C.proxy,['function setDailyRate(uint256)'],signer);const tx=await c.setDailyRate($('setRateIn').value);await tx.wait();toast('涨幅已设','success');await loadContractInfo()}catch(e){toast('失败:'+e.reason||e.message,'error')}}
+async function startMarket(){try{const c=new ethers.Contract(C.proxy,['function setMarketStarted(bool)'],signer);const tx=await c.setMarketStarted(true);await tx.wait();toast('市场已启动','success')}catch(e){toast('失败:'+e.reason||e.message,'error')}}
+async function stopMarket(){try{const c=new ethers.Contract(C.proxy,['function setMarketStarted(bool)'],signer);const tx=await c.setMarketStarted(false);await tx.wait();toast('市场已暂停','success')}catch(e){toast('失败:'+e.reason||e.message,'error')}}
+async function setRates(){try{const c=new ethers.Contract(C.proxy,['function setClaimRates(uint256,uint256,uint256)','function setClaimBurnRate(uint256)'],signer);const tx=await c.setClaimRates($('rateUser').value,$('rateNode').value,$('rateProj').value);await tx.wait();const tx2=await c.setClaimBurnRate($('rateBurn').value);await tx2.wait();toast('分账已设','success');await loadContractInfo()}catch(e){toast('失败:'+e.reason||e.message,'error')}}
+async function setMode(m){try{const c=new ethers.Contract(C.proxy,['function setTradingMode(uint256)'],signer);const tx=await c.setTradingMode(m);await tx.wait();toast('模式已切换','success');await loadContractInfo()}catch(e){toast('失败:'+e.reason||e.message,'error')}}
+if(typeof window.ethereum!=='undefined'){connectWallet();}
+</script>
+</body>
+</html>
