@@ -157,8 +157,8 @@ body{
 </style>
 
 <style>
-.lang-wrap{position:relative;margin:0 4px;display:flex;align-items:center}
-.lang-btn,.bell-btn{background:rgba(255,255,255,0.08);border:1px solid var(--gold-line);border-radius:10px;padding:7px 9px;font-size:15px;cursor:pointer;color:#fff;flex-shrink:0;margin:0 2px}
+.lang-wrap{position:relative;margin:0;display:flex;align-items:center}
+.hd-actions{display:flex;align-items:center;gap:6px;flex-shrink:0}.lang-btn,.bell-btn{background:rgba(255,255,255,0.08);border:1px solid var(--gold-line);border-radius:10px;padding:7px 9px;font-size:15px;cursor:pointer;color:#fff;flex-shrink:0}
 .lang-menu{display:none;position:absolute;top:38px;right:0;background:#141828;border:1px solid #2a3560;border-radius:12px;padding:8px;width:190px;z-index:999;box-shadow:0 8px 30px rgba(0,0,0,.5)}
 .lang-menu.open{display:block}
 .lang-menu .lang-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;cursor:pointer;font-size:13px;color:#fff}
@@ -198,6 +198,15 @@ window.addEventListener('load',function(){applyLang();});
       <div class="brand-cn">鼎鼎币 <span class="brand-bagua">☰</span></div>
       <div class="brand-en">DING DING BI · DDB</div>
     </div>
+    <div class="hd-actions">
+      <button class="lang-btn" onclick="event.stopPropagation();toggleLangMenu()" title="Language">🌐</button>
+      <div class="lang-wrap">
+        <div class="lang-menu" id="langMenu"><div class="lang-item" onclick="setLang('zh')"><span class="flag">🇨🇳</span>简体中文</div><div class="lang-item" onclick="setLang('zh-Hant')"><span class="flag">🇹🇼</span>繁体中文</div><div class="lang-item" onclick="setLang('en')"><span class="flag">🇺🇸</span>English</div><div class="lang-item" onclick="setLang('ja')"><span class="flag">🇯🇵</span>日本語</div><div class="lang-item" onclick="setLang('ko')"><span class="flag">🇰🇷</span>한국어</div><div class="lang-item" onclick="setLang('vi')"><span class="flag">🇻🇳</span>Tiếng Việt</div><div class="lang-item" onclick="setLang('th')"><span class="flag">🇹🇭</span>ไทย</div><div class="lang-item" onclick="setLang('id')"><span class="flag">🇮🇩</span>Bahasa Indonesia</div></div>
+      </div>
+      <button class="bell-btn" onclick="toggleBell()" title="通知">🔔</button>
+      <button class="btn-connect" id="connBtn" onclick="connectWallet()" data-i18n="connect_wallet">连接钱包</button>
+    </div>
+  </div>
     
 <button class="lang-btn" onclick="event.stopPropagation();toggleLangMenu()" title="Language">🌐</button>
 <div class="lang-wrap">
