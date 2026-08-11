@@ -155,6 +155,45 @@ body{
   background:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="55" font-size="80" text-anchor="middle">☯</text></svg>') center/contain no-repeat;
 }
 </style>
+
+<style>
+.lang-wrap{position:relative;margin-right:8px}
+.lang-btn,.bell-btn{background:rgba(255,255,255,0.08);border:1px solid var(--gold-line);border-radius:10px;padding:7px 9px;font-size:15px;cursor:pointer;color:#fff}
+.lang-menu{display:none;position:absolute;top:38px;right:0;background:#141828;border:1px solid #2a3560;border-radius:12px;padding:8px;width:190px;z-index:999;box-shadow:0 8px 30px rgba(0,0,0,.5)}
+.lang-menu.open{display:block}
+.lang-menu .lang-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;cursor:pointer;font-size:13px;color:#fff}
+.lang-menu .lang-item:hover{background:#1f2c4d}
+.lang-menu .lang-item .flag{font-size:16px}
+.bell-notify{background:rgba(0,200,150,.1);border:1px solid rgba(0,200,150,.3);border-radius:10px;padding:10px 12px;font-size:12px;color:var(--green);margin:8px 12px;display:none}
+</style>
+
+<script>
+// ===== DDB 多语言引擎(8国) =====
+var I18N={
+zh:{nav_home:"首页",nav_trade:"交易",nav_mine:"矿机",nav_invite:"邀请",nav_node:"节点",connect_wallet:"连接钱包",sub_title:"一键认购",sub_price:"认购价格",sub_triple:"3倍产出",sub_btn:"立即认购",mech_title:"项目机制",mine_buy:"购买矿机",claim_title:"领取收益"},
+'zh-Hant':{nav_home:"首頁",nav_trade:"交易",nav_mine:"礦機",nav_invite:"邀請",nav_node:"節點",connect_wallet:"連接錢包",sub_title:"一鍵認購",sub_price:"認購價格",sub_triple:"3倍產出",sub_btn:"立即認購",mech_title:"項目機制",mine_buy:"購買礦機",claim_title:"領取收益"},
+en:{nav_home:"Home",nav_trade:"Trade",nav_mine:"Miner",nav_invite:"Invite",nav_node:"Node",connect_wallet:"Connect Wallet",sub_title:"Subscribe",sub_price:"Price",sub_triple:"3x Output",sub_btn:"Subscribe",mech_title:"Mechanism",mine_buy:"Buy Miner",claim_title:"Claim"},
+ja:{nav_home:"ホーム",nav_trade:"取引",nav_mine:"マイナー",nav_invite:"招待",nav_node:"ノード",connect_wallet:"ウォレット接続",sub_title:"購入申込",sub_price:"購入価格",sub_triple:"3倍産出",sub_btn:"購入申込",mech_title:"仕組み",mine_buy:"マイナー購入",claim_title:"獲得"},
+ko:{nav_home:"홈",nav_trade:"거래",nav_mine:"채굴기",nav_invite:"초대",nav_node:"노드",connect_wallet:"지갑 연결",sub_title:"구독",sub_price:"구독 가격",sub_triple:"3배 생산",sub_btn:"구독",mech_title:"메커니즘",mine_buy:"채굴기 구매",claim_title:"수령"},
+vi:{nav_home:"Trang chủ",nav_trade:"Giao dịch",nav_mine:"Máy khai thác",nav_invite:"Mời",nav_node:"Nút",connect_wallet:"Kết nối ví",sub_title:"Đăng ký",sub_price:"Giá đăng ký",sub_triple:"3x sản lượng",sub_btn:"Đăng ký",mech_title:"Cơ chế",mine_buy:"Mua máy",claim_title:"Nhận"},
+th:{nav_home:"หน้าแรก",nav_trade:"ซื้อขาย",nav_mine:"เครื่องขุด",nav_invite:"เชิญ",nav_node:"โหนด",connect_wallet:"เชื่อมต่อกระเป๋า",sub_title:"จองซื้อ",sub_price:"ราคาจอง",sub_triple:"3x ผลผลิต",sub_btn:"จองซื้อ",mech_title:"กลไก",mine_buy:"ซื้อเครื่อง",claim_title:"รับรางวัล"},
+id:{nav_home:"Beranda",nav_trade:"Perdagangan",nav_mine:"Penambang",nav_invite:"Undang",nav_node:"Node",connect_wallet:"Hubungkan Wallet",sub_title:"Berlangganan",sub_price:"Harga",sub_triple:"3x Hasil",sub_btn:"Berlangganan",mech_title:"Mekanisme",mine_buy:"Beli Penambang",claim_title:"Klaim"}
+};
+var CURRENT_LANG=localStorage.getItem('ddb_lang')||'zh';
+function applyLang(){
+  var t=I18N[CURRENT_LANG]||I18N.zh;
+  document.querySelectorAll('[data-i18n]').forEach(function(el){
+    var k=el.getAttribute('data-i18n');
+    if(t[k]!=null) el.textContent=t[k];
+  });
+}
+function setLang(l){CURRENT_LANG=l;localStorage.setItem('ddb_lang',l);applyLang();toggleLangMenu(false);}
+function toggleLangMenu(force){var m=document.getElementById('langMenu');if(m)m.classList.toggle('open',force!==undefined?force:!m.classList.contains('open'));}
+function toggleBell(){var b=document.getElementById('bellBox');if(b)b.style.display=b.style.display==='none'?'block':'none';}
+document.addEventListener('click',function(e){if(!e.target.closest('.lang-wrap')){var m=document.getElementById('langMenu');if(m)m.classList.remove('open');}});
+window.addEventListener('load',function(){applyLang();});
+</script>
+
 </head>
 <body>
 <div class="bg-bagua"></div>
@@ -168,7 +207,22 @@ body{
       <div class="brand-cn">鼎鼎币 <span class="brand-bagua">☰</span></div>
       <div class="brand-en">DING DING BI · DDB</div>
     </div>
-    <button class="btn-connect" id="connBtn" onclick="connectWallet()">连接钱包</button>
+    
+<button class="lang-btn" onclick="event.stopPropagation();toggleLangMenu()" title="Language">🌐</button>
+<div class="lang-wrap">
+  <div class="lang-menu" id="langMenu">
+    <div class="lang-item" onclick="setLang('zh')"><span class="flag">🇨🇳</span>简体中文</div>
+    <div class="lang-item" onclick="setLang('zh-Hant')"><span class="flag">🇹🇼</span>繁体中文</div>
+    <div class="lang-item" onclick="setLang('en')"><span class="flag">🇺🇸</span>English</div>
+    <div class="lang-item" onclick="setLang('ja')"><span class="flag">🇯🇵</span>日本語</div>
+    <div class="lang-item" onclick="setLang('ko')"><span class="flag">🇰🇷</span>한국어</div>
+    <div class="lang-item" onclick="setLang('vi')"><span class="flag">🇻🇳</span>Tiếng Việt</div>
+    <div class="lang-item" onclick="setLang('th')"><span class="flag">🇹🇭</span>ไทย</div>
+    <div class="lang-item" onclick="setLang('id')"><span class="flag">🇮🇩</span>Bahasa Indonesia</div>
+  </div>
+</div>
+<button class="bell-btn" onclick="toggleBell()" title="通知">🔔</button>
+<button class="btn-connect" id="connBtn" onclick="connectWallet()" data-i18n="connect_wallet">连接钱包</button>
   </div>
 
   <div class="banner">
@@ -205,16 +259,16 @@ body{
 
   <!-- 认购 -->
   <div class="sub-card">
-    <div class="sub-title">一键认购</div>
+    <div class="sub-title" data-i18n="sub_title">一键认购</div>
     <div class="sub-desc">认购即销毁 · 3倍产能 · 鼎聚财运</div>
-    <div class="sub-price-row"><label>认购价格</label><span>$0.013 / DDB</span></div>
-    <div class="sub-price-row"><label>3倍产出</label><span>200U → 46154 DDB → 138462 产能</span></div>
+    <div class="sub-price-row"><label data-i18n="sub_price">认购价格</label><span>$0.013 / DDB</span></div>
+    <div class="sub-price-row"><label data-i18n="sub_triple">3倍产出</label><span>200U → 46154 DDB → 138462 产能</span></div>
     <input class="input" id="subAmt" type="number" placeholder="输入 USDT 金额(最低 200)" inputmode="decimal">
     <div style="display:flex;justify-content:space-between;font-size:13px;margin:8px 0 10px">
       <span style="color:var(--text-dim)">预计获得 DDB (3倍产能)</span>
       <span style="color:var(--green);font-weight:700" id="subEstimate">0 DDB</span>
     </div>
-    <button class="btn btn-gold" onclick="subscribeMining()">立即认购</button>
+    <button class="btn btn-gold" onclick="subscribeMining()">data-i18n="sub_btn">立即认购</button>
   </div>
 
   <!-- 九宫格 -->
@@ -225,7 +279,7 @@ body{
     <div class="grid-item" onclick="go('node')"><div class="g-icon">☴</div><div class="g-label">节点</div></div>
   </div>
 
-  <div class="section-title">项目机制</div>
+  <div class="section-title" data-i18n="mech_title">项目机制</div>
   <div class="card">
     <div class="stat-row"><span class="stat-label">☳ 每日释放</span><span class="stat-val">当前产能 × 档位日化率</span></div>
     <div class="stat-row"><span class="stat-label">☶ 领取分账</span><span class="stat-val">80%用户 / 9%节点 / 1%项目 / 10%分红</span></div>
@@ -239,7 +293,7 @@ body{
   <div class="header">
     <div class="logo-wrap"><img src="logo.jpg" alt="DDB"></div>
     <div class="brand-fan"><div class="brand-cn">☰ 交易中心</div></div>
-    <button class="btn-connect" onclick="connectWallet()">连接钱包</button>
+    <button class="btn-connect" onclick="connectWallet()" data-i18n="connect_wallet">连接钱包</button>
   </div>
   <div class="tabs">
     <button class="tab active" onclick="switchTab(this,'buy')">买入 DDB</button>
@@ -271,7 +325,7 @@ body{
   <div class="header">
     <div class="logo-wrap"><img src="logo.jpg" alt="DDB"></div>
     <div class="brand-fan"><div class="brand-cn">☱ 挖矿 · 产能</div></div>
-    <button class="btn-connect" onclick="connectWallet()">连接钱包</button>
+    <button class="btn-connect" onclick="connectWallet()" data-i18n="connect_wallet">连接钱包</button>
   </div>
   <div class="card">
     <div class="miner-status">
@@ -285,7 +339,7 @@ body{
     </div>
   </div>
   <div class="card">
-    <div class="section-title" style="margin:0 0 12px">购买矿机</div>
+    <div class="section-title" style="margin:0 0 12px" data-i18n="mine_buy">购买矿机</div>
     <div style="display:flex;justify-content:space-between;margin-bottom:12px">
       <span style="color:var(--text-dim);font-size:13px">矿机价格</span>
       <span style="color:var(--text-dim);font-size:13px">余额: <span id="mineBal">0.0000</span> DDB</span>
@@ -310,7 +364,7 @@ body{
     <button class="btn btn-purple" onclick="doBuyMining()">授权购买矿机</button>
   </div>
   <div class="card">
-    <div class="section-title" style="margin:0 0 12px">领取收益</div>
+    <div class="section-title" style="margin:0 0 12px" data-i18n="claim_title">领取收益</div>
     <div class="timer" id="claimTimer" style="background:rgba(255,255,255,0.03);border:1px solid var(--sep);color:var(--text-dim)">加载中...</div>
     <button class="btn btn-gold" id="claimBtn" onclick="claimReward()" disabled style="opacity:0.5">领取今日收益</button>
     <div style="text-align:center;margin-top:8px;font-size:11px;color:var(--text-dim)">领取需要极少量 BNB 作为 gas 费</div>
@@ -340,7 +394,7 @@ body{
   <div class="header">
     <div class="logo-wrap"><img src="logo.jpg" alt="DDB"></div>
     <div class="brand-fan"><div class="brand-cn">☲ 邀请 · 团队</div></div>
-    <button class="btn-connect" onclick="connectWallet()">连接钱包</button>
+    <button class="btn-connect" onclick="connectWallet()" data-i18n="connect_wallet">连接钱包</button>
   </div>
   <div class="card">
     <div class="section-title" style="margin:0 0 12px">绑定上级</div>
@@ -373,7 +427,7 @@ body{
   <div class="header">
     <div class="logo-wrap"><img src="logo.jpg" alt="DDB"></div>
     <div class="brand-fan"><div class="brand-cn">☷ 节点 · 分红</div></div>
-    <button class="btn-connect" onclick="connectWallet()">连接钱包</button>
+    <button class="btn-connect" onclick="connectWallet()" data-i18n="connect_wallet">连接钱包</button>
   </div>
   <div class="card">
     <div class="node-perk"><div class="dot">☷</div><span>激活节点，享伞下团队 9% 收益</span></div>
@@ -393,11 +447,11 @@ body{
 
 <!-- ============ 底部导航 ============ -->
 <div class="bnav">
-  <div class="bnav-item active" onclick="go('home')"><div class="bx">☰</div><span>首页</span></div>
-  <div class="bnav-item" onclick="go('trade')"><div class="bx">☲</div><span>交易</span></div>
-  <div class="bnav-item" onclick="go('mine')"><div class="bx">☱</div><span>矿机</span></div>
-  <div class="bnav-item" onclick="go('invite')"><div class="bx">☴</div><span>邀请</span></div>
-  <div class="bnav-item" onclick="go('node')"><div class="bx">☷</div><span>节点</span></div>
+  <div class="bnav-item active" onclick="go('home')"><div class="bx">☰</div><span data-i18n="nav_home">首页</span></div>
+  <div class="bnav-item" onclick="go('trade')"><div class="bx">☲</div><span data-i18n="nav_trade">交易</span></div>
+  <div class="bnav-item" onclick="go('mine')"><div class="bx">☱</div><span data-i18n="nav_mine">矿机</span></div>
+  <div class="bnav-item" onclick="go('invite')"><div class="bx">☴</div><span data-i18n="nav_invite">邀请</span></div>
+  <div class="bnav-item" onclick="go('node')"><div class="bx">☷</div><span data-i18n="nav_node">节点</span></div>
 </div>
 
 <div id="toast"></div>
@@ -942,5 +996,5 @@ window.addEventListener('load',()=>{
 ['buyAmt','sellAmt'].forEach(id=>{document.addEventListener('input',e=>{if(e.target.id===id)updatePreview()})});
 </script>
 
-</body>
+<div id="bellBox" class="bell-notify">📢 暂无新通知</div></body>
 </html>
