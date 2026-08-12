@@ -166,7 +166,7 @@ body{
       <div class="brand-cn">鼎鼎币 <span class="brand-bagua">☰</span></div>
       <div class="brand-en">DING DING BI · DDB</div>
     </div>
-    <button class="btn-connect" id="connBtn" onclick="connectWallet()">连接钱包</button>
+    <button class="lang-btn" onclick="ddbToggleLangPanel()" style="background:rgba(255,255,255,.08);border:1px solid var(--gold-line);border-radius:10px;padding:7px 9px;font-size:15px;cursor:pointer;color:#fff" title="Language">🌐</button><button class="btn-connect" id="connBtn" onclick="connectWallet()"><span data-i18n="connect_wallet" >连接钱包</span></button>
   </div>
 
   <div class="banner">
@@ -191,7 +191,7 @@ body{
     <div class="price-row">
       <div class="price-icon"><img src="logo.jpg" alt="DDB"></div>
       <div>
-        <div class="price-label">DDB 当前价格</div>
+        <div class="price-label"><span data-i18n="price" >DDB 当前价格</span></div>
         <div class="price-origin">初始价 $0.013</div>
       </div>
       <div style="margin-left:auto;text-align:right">
@@ -203,16 +203,16 @@ body{
 
   <!-- 认购 -->
   <div class="sub-card">
-    <div class="sub-title">一键认购</div>
+    <div class="sub-title"><span data-i18n="sub_title" >一键认购</span></div>
     <div class="sub-desc">认购即销毁 · 3倍产能 · 鼎聚财运</div>
-    <div class="sub-price-row"><label>认购价格</label><span>$0.013 / DDB</span></div>
-    <div class="sub-price-row"><label>3倍产出</label><span>200U → 46154 DDB → 138462 产能</span></div>
+    <div class="sub-price-row"><label><span data-i18n="sub_price" >认购价格</span></label><span>$0.013 / DDB</span></div>
+    <div class="sub-price-row"><label><span data-i18n="sub_triple" >3倍产出</span></label><span>200U → 46154 DDB → 138462 产能</span></div>
     <input class="input" id="subAmt" type="number" placeholder="输入 USDT 金额(最低 200)" inputmode="decimal">
     <div style="display:flex;justify-content:space-between;font-size:13px;margin:8px 0 10px">
       <span style="color:var(--text-dim)">预计获得 DDB (3倍产能)</span>
       <span style="color:var(--green);font-weight:700" id="subEstimate">0 DDB</span>
     </div>
-    <button class="btn btn-gold" onclick="subscribeMining()">立即认购</button>
+    <button class="btn btn-gold" onclick="subscribeMining()"><span data-i18n="sub_btn" >立即认购</span></button>
   </div>
 
   <!-- 九宫格 -->
@@ -276,14 +276,14 @@ body{
       <div><div class="stat-label">矿机状态</div><div id="minerStatus" class="stat-val">未购买</div></div>
       <div style="text-align:right"><div class="stat-label">DDB 余额</div><div id="tokBal" class="stat-val">0.0000</div></div>
     </div>
-    <div class="stat-row"><span class="stat-label">剩余产能</span><span class="stat-val" id="minerCap">0.00</span></div>
-    <div class="stat-row"><span class="stat-label">今日可领</span><span class="stat-val" style="color:var(--jin)" id="minerClaim">0.00 DDB</span></div>
+    <div class="stat-row"><span class="stat-label"><span data-i18n="mine_capacity" >剩余产能</span></span><span class="stat-val" id="minerCap">0.00</span></div>
+    <div class="stat-row"><span class="stat-label"><span data-i18n="mine_claimable" >今日可领</span></span><span class="stat-val" style="color:var(--jin)" id="minerClaim">0.00 DDB</span></div>
     <div id="accelRow" style="display:none;margin-top:6px;font-size:12px;color:var(--green)">
       19代加速 <span id="minerAccelShown" style="font-weight:700;color:var(--green)">0.00 DDB</span>
     </div>
   </div>
   <div class="card">
-    <div class="section-title" style="margin:0 0 12px">购买矿机</div>
+    <div class="section-title" style="margin:0 0 12px"><span data-i18n="mine_buy" >购买矿机</span></div>
     <div style="display:flex;justify-content:space-between;margin-bottom:12px">
       <span style="color:var(--text-dim);font-size:13px">矿机价格</span>
       <span style="color:var(--text-dim);font-size:13px">余额: <span id="mineBal">0.0000</span> DDB</span>
@@ -308,7 +308,7 @@ body{
     <button class="btn btn-purple" onclick="doBuyMining()">授权购买矿机</button>
   </div>
   <div class="card">
-    <div class="section-title" style="margin:0 0 12px">领取收益</div>
+    <div class="section-title" style="margin:0 0 12px"><span data-i18n="claim_title" >领取收益</span></div>
     <div class="timer" id="claimTimer" style="background:rgba(255,255,255,0.03);border:1px solid var(--sep);color:var(--text-dim)">加载中...</div>
     <button class="btn btn-gold" id="claimBtn" onclick="claimReward()" disabled style="opacity:0.5">领取今日收益</button>
     <div style="text-align:center;margin-top:8px;font-size:11px;color:var(--text-dim)">领取需要极少量 BNB 作为 gas 费</div>
@@ -391,11 +391,11 @@ body{
 
 <!-- ============ 底部导航 ============ -->
 <div class="bnav">
-  <div class="bnav-item active" onclick="go('home')"><div class="bx">☰</div><span>首页</span></div>
-  <div class="bnav-item" onclick="go('trade')"><div class="bx">☲</div><span>交易</span></div>
-  <div class="bnav-item" onclick="go('mine')"><div class="bx">☱</div><span>矿机</span></div>
-  <div class="bnav-item" onclick="go('invite')"><div class="bx">☴</div><span>邀请</span></div>
-  <div class="bnav-item" onclick="go('node')"><div class="bx">☷</div><span>节点</span></div>
+  <div class="bnav-item active" onclick="go('home')"><div class="bx">☰</div><span data-i18n="nav_home" >首页</span></div>
+  <div class="bnav-item" onclick="go('trade')"><div class="bx">☲</div><span data-i18n="nav_trade" >交易</span></div>
+  <div class="bnav-item" onclick="go('mine')"><div class="bx">☱</div><span data-i18n="nav_mine" >矿机</span></div>
+  <div class="bnav-item" onclick="go('invite')"><div class="bx">☴</div><span data-i18n="nav_invite" >邀请</span></div>
+  <div class="bnav-item" onclick="go('node')"><div class="bx">☷</div><span data-i18n="nav_node" >节点</span></div>
 </div>
 
 <div id="toast"></div>
@@ -940,5 +940,6 @@ window.addEventListener('load',()=>{
 ['buyAmt','sellAmt'].forEach(id=>{document.addEventListener('input',e=>{if(e.target.id===id)updatePreview()})});
 </script>
 
+<script src="ddb_lang.js?v=1"></script>
 </body>
 </html>
