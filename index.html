@@ -163,7 +163,7 @@ body{
   <div class="header">
     <div class="logo-wrap"><img src="logo.jpg" alt="DDB"></div>
     <div class="brand-fan">
-      <div class="brand-cn" data-i18n="trade_cur">鼎鼎币 <span class="brand-bagua">☰</span></div>
+      <div class="brand-cn">鼎鼎币 <span class="brand-bagua">☰</span></div>
       <div class="brand-en">DING DING BI · DDB</div>
     </div>
     <button class="lang-btn" onclick="ddbToggleLangPanel()" style="background:rgba(255,255,255,.08);border:1px solid var(--gold-line);border-radius:10px;padding:7px 9px;font-size:15px;cursor:pointer;color:#fff" title="Language">🌐</button><button class="btn-connect" id="connBtn" onclick="connectWallet()"><span data-i18n="connect_wallet" >连接钱包</span></button>
@@ -172,18 +172,18 @@ body{
   <div class="banner">
     <div class="banner-slide active">
       <div class="bt" data-i18n="banner1">☲ 鼎立乾坤 · 聚财昌隆</div>
-      <div class="bs" data-i18n="banner3_sub">DDB · 鼎鼎币 · 以鼎聚财 · 五行护运</div>
+      <div class="bs" data-i18n="banner2">DDB · 鼎鼎币 · 以鼎聚财 · 五行护运</div>
       <div class="bb" data-i18n="supply">发行 13,143,186 枚</div>
     </div>
     <div class="banner-slide">
       <div class="bt" data-i18n="banner3">☵ 认购即锁 3 倍产能</div>
-      <div class="bs" data-i18n="banner4_sub">200U → 3倍产能锁仓 · 递减释放</div>
+      <div class="bs" data-i18n="banner3_sub">200U → 3倍产能锁仓 · 递减释放</div>
       <div class="bb" data-i18n="tag_sub">认购中</div>
     </div>
     <div class="banner-slide">
       <div class="bt" data-i18n="banner4">☷ 节点自动分红</div>
-      <div class="bs"><span data-i18n="banner4_sub">10% 分红池 · 节点全网自动平均分配</span></div>
-      <div class="bb"><span data-i18n="tag_div">自动分红</span></div>
+      <div class="bs" data-i18n="banner4_sub">10% 分红池 · 节点全网自动平均分配</div>
+      <div class="bb" data-i18n="tag_div">自动分红</div>
     </div>
   </div>
 
@@ -192,7 +192,7 @@ body{
       <div class="price-icon"><img src="logo.jpg" alt="DDB"></div>
       <div>
         <div class="price-label"><span data-i18n="price" >DDB 当前价格</span></div>
-        <div class="price-origin" data-i18n="origin">初始价 $0.013</div>
+        <div class="price-origin">初始价 $0.013</div>
       </div>
       <div style="margin-left:auto;text-align:right">
         <div class="price-val" id="priceVal">$0.013000</div>
@@ -205,8 +205,8 @@ body{
   <div class="sub-card">
     <div class="sub-title"><span data-i18n="sub_title" >一键认购</span></div>
     <div class="sub-desc" data-i18n="sub_desc">认购即销毁 · 3倍产能 · 鼎聚财运</div>
-    <div class="sub-price-row"><label><span data-i18n="sub_price" >认购价格</span></label><span data-i18n="sub_example">$0.013 / DDB</span></div>
-    <div class="sub-price-row"><label><span data-i18n="sub_triple" >3倍产出</span></label><span data-i18n="node_perk1">200U → 46154 DDB → 138462 产能</span></div>
+    <div class="sub-price-row"><label><span data-i18n="sub_price" >认购价格</span></label><span>$0.013 / DDB</span></div>
+    <div class="sub-price-row"><label><span data-i18n="sub_triple" >3倍产出</span></label><span data-i18n="sub_example">200U → 46154 DDB → 138462 产能</span></div>
     <input class="input" id="subAmt" type="number" placeholder="💲" data-i18n-placeholder="trade_phbuy" inputmode="decimal">
     <div style="display:flex;justify-content:space-between;font-size:13px;margin:8px 0 10px">
       <span style="color:var(--text-dim)" data-i18n="sub_est">预计获得 DDB (3倍产能)</span>
@@ -220,15 +220,15 @@ body{
     <div class="grid-item" onclick="go('trade')"><div class="g-icon">☰</div><div class="g-label" data-i18n="grid_trade">交易中心</div></div>
     <div class="grid-item" onclick="go('mine')"><div class="g-icon">☱</div><div class="g-label" data-i18n="grid_miner">买矿机</div></div>
     <div class="grid-item" onclick="go('invite')"><div class="g-icon">☲</div><div class="g-label" data-i18n="grid_invite">邀请</div></div>
-    <div class="grid-item" onclick="go('node')"><div class="g-icon">☴</div><div class="g-label">节点</div></div>
+    <div class="grid-item" onclick="go('node')"><div class="g-icon">☴</div><div class="g-label" data-i18n="grid_node">节点</div></div>
   </div>
 
   <div class="section-title" data-i18n="mech_title">项目机制</div>
   <div class="card">
     <div class="stat-row"><span class="stat-label" data-i18n="mech_daily">☳ 每日释放</span><span class="stat-val" data-i18n="mech_daily_sub">当前产能 × 档位日化率</span></div>
     <div class="stat-row"><span class="stat-label" data-i18n="mech_split">☶ 领取分账</span><span class="stat-val" data-i18n="mech_split_sub">80%用户 / 9%节点 / 1%项目 / 10%分红</span></div>
-    <div class="stat-row"><span class="stat-label" data-i18n="mech_rate">☵ 日化率</span><span class="stat-val" data-i18n="mech_19_sub">0.38% / 0.42% / 0.46% / 0.50%</span></div>
-    <div class="stat-row"><span class="stat-label" data-i18n="mech_19">☷ 19代加速</span><span class="stat-val" data-i18n="invite_200">每级10%自动加速</span></div>
+    <div class="stat-row"><span class="stat-label" data-i18n="mech_rate">☵ 日化率</span><span class="stat-val">0.38% / 0.42% / 0.46% / 0.50%</span></div>
+    <div class="stat-row"><span class="stat-label" data-i18n="mech_19">☷ 19代加速</span><span class="stat-val" data-i18n="mech_19_sub">每级10%自动加速</span></div>
   </div>
 </div>
 
@@ -236,25 +236,25 @@ body{
 <div id="p-trade" class="page">
   <div class="header">
     <div class="logo-wrap"><img src="logo.jpg" alt="DDB"></div>
-    <div class="brand-fan"><div class="brand-cn" data-i18n="mine_cur">☰ 交易中心</div></div>
+    <div class="brand-fan"><div class="brand-cn" data-i18n="trade_cur">☰ 交易中心</div></div>
     <button class="btn-connect" onclick="connectWallet()"><span data-i18n="connect_wallet">连接钱包</span></button>
   </div>
   <div class="tabs">
     <button class="tab active" onclick="switchTab(this,'buy')" data-i18n="trade_buy">买入 DDB</button>
     <button class="tab" onclick="switchTab(this,'sell')" data-i18n="trade_sell">卖出 DDB</button>
   </div>
-  <div id="marketNotice" style="display:none;margin:10px 0;padding:10px 12px;background:rgba(255,180,0,0.1);border:1px solid rgba(255,180,0,0.35);border-radius:10px;font-size:13px;color:var(--jin)" data-i18n="trade_market_off">⏳ 市场尚未启动，交易中心买卖暂时不可用</div>
+  <div id="marketNotice" style="display:none;margin:10px 0;padding:10px 12px;background:rgba(255,180,0,0.1);border:1px solid rgba(255,180,0,0.35);border-radius:10px;font-size:13px;color:var(--jin)">⏳ 市场尚未启动，交易中心买卖暂时不可用（认购/买矿机/领取正常）。启动后即可交易。</div>
   <div id="trade-buy">
     <div class="card">
       <div class="trade-input-row"><span style="color:var(--text-dim);font-size:13px;margin-right:8px" data-i18n="trade_pay">支付 USDT</span><input id="buyAmt" class="input" type="number" placeholder="💲" data-i18n-placeholder="trade_phbuy"></div>
-      <div class="stat-row"><span class="stat-label" data-i18n="trade_to">预计获得 DDB</span><span class="stat-val" id="buyPreview">0.00</span></div>
+      <div class="stat-row"><span class="stat-label" data-i18n="trade_get">预计获得 DDB</span><span class="stat-val" id="buyPreview">0.00</span></div>
       <div style="margin-top:12px"><button class="btn btn-green" onclick="doBuy()" data-i18n="trade_buy_btn">确认买入</button></div>
     </div>
   </div>
   <div id="trade-sell" style="display:none">
     <div class="card">
       <div class="trade-input-row"><span style="color:var(--text-dim);font-size:13px;margin-right:8px" data-i18n="trade_sell">卖出 DDB</span><input id="sellAmt" class="input" type="number" placeholder="🔢" data-i18n-placeholder="trade_phsell"></div>
-      <div class="stat-row"><span class="stat-label" data-i18n="invite_direct">预计到账 USDT (扣13%)</span><span class="stat-val" id="sellPreview">0.00</span></div>
+      <div class="stat-row"><span class="stat-label" data-i18n="trade_to">预计到账 USDT (扣13%)</span><span class="stat-val" id="sellPreview">0.00</span></div>
       <div style="margin-top:12px"><button class="btn btn-red" onclick="doSell()" data-i18n="trade_sell_btn">确认卖出</button></div>
     </div>
   </div>
@@ -268,7 +268,7 @@ body{
 <div id="p-mine" class="page">
   <div class="header">
     <div class="logo-wrap"><img src="logo.jpg" alt="DDB"></div>
-    <div class="brand-fan"><div class="brand-cn" data-i18n="invite_cur">☱ 挖矿 · 产能</div></div>
+    <div class="brand-fan"><div class="brand-cn" data-i18n="mine_cur">☱ 挖矿 · 产能</div></div>
     <button class="btn-connect" onclick="connectWallet()"><span data-i18n="connect_wallet">连接钱包</span></button>
   </div>
   <div class="card">
@@ -276,17 +276,17 @@ body{
       <div><div class="stat-label" data-i18n="mine_status">矿机状态</div><div id="minerStatus" class="stat-val" data-i18n="mine_not_bought">未购买</div></div>
       <div style="text-align:right"><div class="stat-label" data-i18n="mine_balance">DDB 余额</div><div id="tokBal" class="stat-val">0.0000</div></div>
     </div>
-    <div class="stat-row"><span class="stat-label" data-i18n="invite_perf"><span data-i18n="mine_capacity" >剩余产能</span></span><span class="stat-val" id="minerCap">0.00</span></div>
-    <div class="stat-row"><span class="stat-label" data-i18n="invite_unlock"><span data-i18n="mine_claimable" >今日可领</span></span><span class="stat-val" style="color:var(--jin)" id="minerClaim">0.00 DDB</span></div>
+    <div class="stat-row"><span class="stat-label"><span data-i18n="mine_capacity" >剩余产能</span></span><span class="stat-val" id="minerCap">0.00</span></div>
+    <div class="stat-row"><span class="stat-label"><span data-i18n="mine_claimable" >今日可领</span></span><span class="stat-val" style="color:var(--jin)" id="minerClaim">0.00 DDB</span></div>
     <div id="accelRow" style="display:none;margin-top:6px;font-size:12px;color:var(--green)">
-      <span data-i18n="mine_19accel">19代加速</span> <span id="minerAccelShown" style="font-weight:700;color:var(--green)">0.00 DDB</span>
+      19代加速 <span id="minerAccelShown" style="font-weight:700;color:var(--green)">0.00 DDB</span>
     </div>
   </div>
   <div class="card">
-    <div class="section-title" style="margin:0 0 12px" data-i18n="reinvest"><span data-i18n="mine_buy" >购买矿机</span></div>
+    <div class="section-title" style="margin:0 0 12px"><span data-i18n="mine_buy" >购买矿机</span></div>
     <div style="display:flex;justify-content:space-between;margin-bottom:12px">
       <span style="color:var(--text-dim);font-size:13px" data-i18n="mine_curprice">矿机价格</span>
-      <span style="color:var(--text-dim);font-size:13px" data-i18n="mine_balance_label">余额: <span id="mineBal">0.0000</span> DDB</span>
+      <span style="color:var(--text-dim);font-size:13px">余额: <span id="mineBal">0.0000</span> DDB</span>
     </div>
     <div style="position:relative;margin-bottom:10px">
       <input class="input" id="mineAmt" type="number" placeholder="🔢" data-i18n-placeholder="mine_phqty" inputmode="decimal" style="padding-right:70px;font-size:16px">
@@ -303,24 +303,24 @@ body{
     </div>
     <div style="display:flex;justify-content:space-between;padding:8px 0;margin-bottom:16px;font-size:14px">
       <span style="color:var(--text-dim)" data-i18n="mine_esttotal">预计挖矿总量</span>
-      <span style="font-weight:600" id="mineEstTotal" data-i18n="mine_3x">0.00 DDB (3倍杠杆)</span>
+      <span style="font-weight:600" id="mineEstTotal" data-i18n="mine_total_display">0.00 DDB (3倍杠杆)</span>
     </div>
     <button class="btn btn-purple" onclick="doBuyMining()" data-i18n="mine_approve">授权购买矿机</button>
   </div>
   <div class="card">
-    <div class="section-title" style="margin:0 0 12px" data-i18n="bind_ref"><span data-i18n="claim_title" >领取收益</span></div>
+    <div class="section-title" style="margin:0 0 12px"><span data-i18n="claim_title" >领取收益</span></div>
     <div class="timer" id="claimTimer" style="background:rgba(255,255,255,0.03);border:1px solid var(--sep);color:var(--text-dim)" data-i18n="claim_loading">加载中...</div>
     <button class="btn btn-gold" id="claimBtn" onclick="claimReward()" disabled style="opacity:0.5" data-i18n="claim_btn">领取今日收益</button>
     <div style="text-align:center;margin-top:8px;font-size:11px;color:var(--text-dim)" data-i18n="claim_gas">领取需要极少量 BNB 作为 gas 费</div>
     <div style="text-align:center;margin-top:4px;font-size:10px;color:var(--text-dim)" id="accelHint" data-i18n="claim_hint">☳ 19代加速 = 伞下用户领取时从剩余产能加速释放的部分（递减释放，需复投补充）</div>
   </div>
   <div class="card">
-    <div class="section-title" style="margin:0 0 12px" data-i18n="invite_link">复投（3倍产能）</div>
+    <div class="section-title" style="margin:0 0 12px" data-i18n="reinvest">复投（3倍产能）</div>
     <button class="btn btn-green" onclick="reinvest()" data-i18n="reinvest_btn">复投 (最低1000 DDB)</button>
   </div>
   <div class="card" style="background:linear-gradient(135deg,rgba(255,87,34,0.12),rgba(180,77,255,0.10))">
     <div class="section-title" style="color:var(--jin);margin:0 0 6px" data-i18n="transfer_title">DDB 互转（DApp 内·计业绩）</div>
-    <div style="font-size:12px;color:var(--text-dim);margin-bottom:10px" data-i18n="transfer_desc">在 DApp 内互转 DDB，链上真实划转，自动按当前价折算业绩。业绩额度=实际转出量，不可造假。</div>
+    <div style="font-size:12px;color:var(--text-dim);margin-bottom:10px" data-i18n="transfer_desc">在 DApp 内互转 DDB：填接收方钱包地址与数量，链上真实划转，自动按当前价折算业绩（解锁19代代数）。业绩额度=实际转出量，不可造假。</div>
     <input class="input" id="transRecv" type="text" placeholder="0x..." data-i18n-placeholder="transfer_ph_addr" style="margin-bottom:8px">
     <div style="display:flex;gap:8px">
       <input class="input" id="transAmt" type="number" placeholder="🔢" data-i18n-placeholder="transfer_ph_amt" style="flex:1" oninput="updTransPerf()">
@@ -337,29 +337,29 @@ body{
 <div id="p-invite" class="page">
   <div class="header">
     <div class="logo-wrap"><img src="logo.jpg" alt="DDB"></div>
-    <div class="brand-fan"><div class="brand-cn" data-i18n="node_cur">☲ 邀请 · 团队</div></div>
+    <div class="brand-fan"><div class="brand-cn" data-i18n="invite_cur">☲ 邀请 · 团队</div></div>
     <button class="btn-connect" onclick="connectWallet()"><span data-i18n="connect_wallet">连接钱包</span></button>
   </div>
   <div class="card">
-    <div class="section-title" style="margin:0 0 12px" data-i18n="invite_link2">绑定上级</div>
+    <div class="section-title" style="margin:0 0 12px" data-i18n="bind_ref">绑定上级</div>
     <input class="input" id="refInput" placeholder="0x..." data-i18n-placeholder="invite_ph">
     <button class="btn btn-purple" onclick="bindReferrer()" data-i18n="bind_btn">确认绑定</button>
   </div>
   <div class="card">
-    <div class="section-title" style="margin:0 0 12px" data-i18n="invite_tier">我的推广链接</div>
+    <div class="section-title" style="margin:0 0 12px" data-i18n="invite_link">我的推广链接</div>
     <div class="invite-card">
-      <div class="in"><div class="il">推广链接</div><div class="iv" id="inviteLink" data-i18n="invite_show">连接钱包后显示</div></div>
+      <div class="in"><div class="il" data-i18n="invite_link2">推广链接</div><div class="iv" id="inviteLink" data-i18n="invite_show">连接钱包后显示</div></div>
       <button class="invite-copy" onclick="copyText()" data-i18n="invite_copy">复制</button>
     </div>
-    <div class="stat-row"><span class="stat-label" data-i18n="node_status">直推人数</span><span class="stat-val" id="directCnt">0</span></div>
+    <div class="stat-row"><span class="stat-label" data-i18n="invite_direct">直推人数</span><span class="stat-val" id="directCnt">0</span></div>
      <div class="stat-row"><span class="stat-label" data-i18n="invite_perf">直推业绩</span><span class="stat-val" id="directAmt">0 USDT</span></div>
      <div class="stat-row"><span class="stat-label" data-i18n="invite_unlock">已解锁代数</span><span class="stat-val" style="color:var(--green)" id="myGen">0</span></div>
   </div>
   <div class="card">
     <div class="section-title" style="margin:0 0 12px" data-i18n="invite_tier">业绩解锁代数（用U投入累计直推业绩）</div>
     <div style="font-size:12px;margin-bottom:6px" data-i18n="invite_tierdesc">每直推业绩达标，解锁更多代上加速（19代10%加速）</div>
-    <div class="stat-row"><span class="stat-label">200U →</span><span class="stat-val" data-i18n="invite_1000">解锁 3代</span></div>
-    <div class="stat-row"><span class="stat-label">1000U →</span><span class="stat-val" data-i18n="invite_2000">解锁 10代</span></div>
+    <div class="stat-row"><span class="stat-label">200U →</span><span class="stat-val" data-i18n="invite_200">解锁 3代</span></div>
+    <div class="stat-row"><span class="stat-label">1000U →</span><span class="stat-val" data-i18n="invite_1000">解锁 10代</span></div>
     <div class="stat-row"><span class="stat-label">2000U →</span><span class="stat-val" data-i18n="invite_2000">解锁 15代</span></div>
     <div class="stat-row"><span class="stat-label">5000U →</span><span class="stat-val" style="color:var(--jin)" data-i18n="invite_5000">解锁 19代</span></div>
     <div style="margin-top:8px"><div style="font-size:11px;color:var(--text-dim)" id="genHint" data-i18n="gen_hint">距下一级还差 -- USDT</div></div>
@@ -374,8 +374,8 @@ body{
     <button class="btn-connect" onclick="connectWallet()"><span data-i18n="connect_wallet">连接钱包</span></button>
   </div>
   <div class="card">
-    <div class="node-perk"><div class="dot">☷</div><span data-i18n="node_perk2">激活节点，享伞下团队 9% 收益</span></div>
-    <div class="node-perk"><div class="dot">☵</div><span data-i18n="node_perk3">10% 分红池，节点全网自动平均分红</span></div>
+    <div class="node-perk"><div class="dot">☷</div><span data-i18n="node_perk1">激活节点，享伞下团队 9% 收益</span></div>
+    <div class="node-perk"><div class="dot">☵</div><span>10% 分红池，节点全网自动平均分红</span></div>
     <div class="node-perk"><div class="dot">☶</div><span data-i18n="node_perk3">一次开通，终生有效</span></div>
     <div style="margin-top:12px"><button class="btn btn-gold" onclick="activateNode()" data-i18n="node_btn">激活节点</button></div>
     <div style="margin-top:10px;text-align:center;background:rgba(0,200,150,0.08);border:1px solid rgba(0,200,150,0.25);border-radius:10px;padding:10px">
