@@ -631,21 +631,19 @@ function updateClaimUI(claim,lastClaim,now){
   // 冷却优先：24小时才能领一次，基准 = 上次领取时间 lastClaimTime
   const cooldown=lastClaim>0?(lastClaim+86400)-now:0;
   if(cooldown>0){
-    timer.textContent='下次领取: '+fmtCD(cooldown);
+    // 不显示倒计时，只显示可领金额数字，按钮灰掉（等待冷却完成）
+    timer.textContent='可领取 '+claim.toFixed(2)+' DDB（已领取，24小时后可再领）';
     timer.style.color='var(--text-dim)';
-    btn.disabled=true;btn.style.opacity='0.5';btn.textContent='已领取,等待冷却';
-    // 倒计时
+    btn.disabled=true;btn.style.opacity='0.5';btn.textContent='下次可领取 '+claim.toFixed(2)+' DDB';
+    // 每30秒检查一次是否冷却结束，结束则恢复可领
     if(window._claimCd){clearInterval(window._claimCd);}
     window._claimCd=setInterval(()=>{
       const remain=lastClaim+86400-Math.floor(Date.now()/1000);
-      const tm=document.getElementById('claimTimer');
       if(remain<=0){
         clearInterval(window._claimCd);
-        if(tm){tm.textContent='可领取!立即点击领取';tm.style.color='var(--green)';}
-        const b=document.getElementById('claimBtn');
-        if(b){b.disabled=false;b.style.opacity='1';b.textContent='领取今日收益 ('+claim.toFixed(2)+' DDB)';}
-      }else if(tm){tm.textContent='下次领取: '+fmtCD(remain);}
-    },1000);
+        updateClaimUI(claim,lastClaim,Math.floor(Date.now()/1000));
+      }
+    },30000);
     return;
   }
   if(claim<=0){
