@@ -152,7 +152,25 @@ body{
 .totem{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);width:300px;height:300px;opacity:0.03;pointer-events:none;z-index:0;
   background:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="55" font-size="80" text-anchor="middle">☯</text></svg>') center/contain no-repeat;
 }
+
+/* ===== 顶部导航 (NNB风格) ===== */
+.navbar{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;gap:10px;background:rgba(255,255,255,0.02);border-bottom:1px solid var(--gold-line)}
+.nav-left{display:flex;gap:8px;align-items:center}
+.nav-btn{display:flex;align-items:center;gap:5px;background:rgba(255,215,0,0.1);border:1px solid var(--gold-line);border-radius:10px;padding:7px 12px;font-size:12px;color:var(--text);cursor:pointer;font-weight:600;white-space:nowrap}
+.nav-btn i{color:var(--jin);font-size:15px}
+.nav-icon{display:flex;align-items:center;justify-content:center;width:34px;height:34px;background:rgba(255,255,255,0.06);border:1px solid var(--gold-line);border-radius:10px;color:var(--text);cursor:pointer;font-size:17px}
+.nav-icon i{color:var(--text);font-size:18px}
+.nav-connect{margin-left:auto;flex-shrink:0}
+/* 首页品牌条 */
+.brand-bar{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:14px 0 10px;background:linear-gradient(135deg,var(--bg-mid),var(--bg-card));border-bottom:1px solid var(--gold-line)}
+.brand-bar .logo-wrap{width:56px;height:56px}
+.brand-bar .brand-name{display:flex;align-items:center;gap:6px}
+.brand-bar .brand-cn{font-size:24px;font-weight:800;letter-spacing:2px;background:linear-gradient(90deg,var(--jin),var(--huo));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.brand-bar .brand-en{font-size:11px;color:var(--text-dim);letter-spacing:3px}
+
 </style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css">
 </head>
 <body>
 <div class="bg-bagua"></div>
@@ -161,15 +179,24 @@ body{
 <!-- ============ 首页 ============ -->
 <div id="p-home" class="page active">
   <div class="header">
-    <div class="logo-wrap"><img src="logo.jpg" alt="DDB"></div>
-    <div class="brand-fan">
-      <div class="brand-cn">鼎鼎币 <span class="brand-bagua">☰</span></div>
-      <div class="brand-en">DING DING BI · DDB</div>
+    <div class="navbar">
+      <div class="nav-left">
+        <button class="nav-btn" onclick="go('home')"><i class="ph ph-caret-left"></i> <span data-i18n="back">返回首页</span></button>
+        <button class="nav-icon" onclick="ddbNotify()"><i class="ph ph-bell"></i></button>
+        <button class="nav-icon" onclick="ddbToggleLangPanel()"><i class="ph ph-globe"></i></button>
+      </div>
+      <button class="btn-connect nav-connect" id="connBtn" onclick="connectWallet()"><i class="ph ph-wallet"></i> <span data-i18n="connect_wallet">连接钱包</span></button>
     </div>
-    <button class="lang-btn" onclick="ddbToggleLangPanel()" style="background:rgba(255,255,255,.08);border:1px solid var(--gold-line);border-radius:10px;padding:7px 9px;font-size:15px;cursor:pointer;color:#fff" title="Language">🌐</button><button class="btn-connect" id="connBtn" onclick="connectWallet()"><span data-i18n="connect_wallet" >连接钱包</span></button>
   </div>
 
-  <div class="banner">
+
+  <div class="brand-bar">
+    <div class="logo-wrap"><img src="logo.jpg" alt="DDB"></div>
+    <div class="brand-name"><span class="brand-cn">鼎鼎币</span></div>
+    <div class="brand-en">DING DING BI · DDB</div>
+  </div>
+
+<div class="banner">
     <div class="banner-slide active">
       <div class="bt" data-i18n="banner1">☲ 鼎立乾坤 · 聚财昌隆</div>
       <div class="bs" data-i18n="banner2">DDB · 鼎鼎币 · 以鼎聚财 · 五行护运</div>
@@ -235,10 +262,16 @@ body{
 <!-- ============ 交易中心 ============ -->
 <div id="p-trade" class="page">
   <div class="header">
-    <div class="logo-wrap"><img src="logo.jpg" alt="DDB"></div>
-    <div class="brand-fan"><div class="brand-cn" data-i18n="trade_cur">☰ 交易中心</div></div>
-    <button class="btn-connect" onclick="connectWallet()"><span data-i18n="connect_wallet">连接钱包</span></button>
+    <div class="navbar">
+      <div class="nav-left">
+        <button class="nav-btn" onclick="go('home')"><i class="ph ph-caret-left"></i> <span data-i18n="back">返回首页</span></button>
+        <button class="nav-icon" onclick="ddbNotify()"><i class="ph ph-bell"></i></button>
+        <button class="nav-icon" onclick="ddbToggleLangPanel()"><i class="ph ph-globe"></i></button>
+      </div>
+      <button class="btn-connect nav-connect" id="connBtn" onclick="connectWallet()"><i class="ph ph-wallet"></i> <span data-i18n="connect_wallet">连接钱包</span></button>
+    </div>
   </div>
+
   <div class="tabs">
     <button class="tab active" onclick="switchTab(this,'buy')" data-i18n="trade_buy">买入 DDB</button>
     <button class="tab" onclick="switchTab(this,'sell')" data-i18n="trade_sell">卖出 DDB</button>
@@ -267,10 +300,16 @@ body{
 <!-- ============ 矿机 ============ -->
 <div id="p-mine" class="page">
   <div class="header">
-    <div class="logo-wrap"><img src="logo.jpg" alt="DDB"></div>
-    <div class="brand-fan"><div class="brand-cn" data-i18n="mine_cur">☱ 挖矿 · 产能</div></div>
-    <button class="btn-connect" onclick="connectWallet()"><span data-i18n="connect_wallet">连接钱包</span></button>
+    <div class="navbar">
+      <div class="nav-left">
+        <button class="nav-btn" onclick="go('home')"><i class="ph ph-caret-left"></i> <span data-i18n="back">返回首页</span></button>
+        <button class="nav-icon" onclick="ddbNotify()"><i class="ph ph-bell"></i></button>
+        <button class="nav-icon" onclick="ddbToggleLangPanel()"><i class="ph ph-globe"></i></button>
+      </div>
+      <button class="btn-connect nav-connect" id="connBtn" onclick="connectWallet()"><i class="ph ph-wallet"></i> <span data-i18n="connect_wallet">连接钱包</span></button>
+    </div>
   </div>
+
   <div class="card">
     <div class="miner-status">
       <div><div class="stat-label" data-i18n="mine_status">矿机状态</div><div id="minerStatus" class="stat-val" data-i18n="mine_not_bought">未购买</div></div>
@@ -336,10 +375,16 @@ body{
 <!-- ============ 邀请 ============ -->
 <div id="p-invite" class="page">
   <div class="header">
-    <div class="logo-wrap"><img src="logo.jpg" alt="DDB"></div>
-    <div class="brand-fan"><div class="brand-cn" data-i18n="invite_cur">☲ 邀请 · 团队</div></div>
-    <button class="btn-connect" onclick="connectWallet()"><span data-i18n="connect_wallet">连接钱包</span></button>
+    <div class="navbar">
+      <div class="nav-left">
+        <button class="nav-btn" onclick="go('home')"><i class="ph ph-caret-left"></i> <span data-i18n="back">返回首页</span></button>
+        <button class="nav-icon" onclick="ddbNotify()"><i class="ph ph-bell"></i></button>
+        <button class="nav-icon" onclick="ddbToggleLangPanel()"><i class="ph ph-globe"></i></button>
+      </div>
+      <button class="btn-connect nav-connect" id="connBtn" onclick="connectWallet()"><i class="ph ph-wallet"></i> <span data-i18n="connect_wallet">连接钱包</span></button>
+    </div>
   </div>
+
   <div class="card">
     <div class="section-title" style="margin:0 0 12px" data-i18n="bind_ref">绑定上级</div>
     <input class="input" id="refInput" placeholder="0x..." data-i18n-placeholder="invite_ph">
@@ -369,10 +414,16 @@ body{
 <!-- ============ 节点 ============ -->
 <div id="p-node" class="page">
   <div class="header">
-    <div class="logo-wrap"><img src="logo.jpg" alt="DDB"></div>
-    <div class="brand-fan"><div class="brand-cn" data-i18n="node_cur">☷ 节点 · 分红</div></div>
-    <button class="btn-connect" onclick="connectWallet()"><span data-i18n="connect_wallet">连接钱包</span></button>
+    <div class="navbar">
+      <div class="nav-left">
+        <button class="nav-btn" onclick="go('home')"><i class="ph ph-caret-left"></i> <span data-i18n="back">返回首页</span></button>
+        <button class="nav-icon" onclick="ddbNotify()"><i class="ph ph-bell"></i></button>
+        <button class="nav-icon" onclick="ddbToggleLangPanel()"><i class="ph ph-globe"></i></button>
+      </div>
+      <button class="btn-connect nav-connect" id="connBtn" onclick="connectWallet()"><i class="ph ph-wallet"></i> <span data-i18n="connect_wallet">连接钱包</span></button>
+    </div>
   </div>
+
   <div class="card">
     <div class="node-perk"><div class="dot">☷</div><span data-i18n="node_perk1">激活节点，享伞下团队 9% 收益</span></div>
     <div class="node-perk"><div class="dot">☵</div><span>10% 分红池，节点全网自动平均分红</span></div>
@@ -415,6 +466,7 @@ const C={
 let provider,signer,addr=null,currentPrice=0.013,userDDB=0,userUSDT=0;
 const $=id=>document.getElementById(id);
 function toast(msg,green=false){const t=$('toast');t.textContent=msg;t.className='show'+(green?' toast-green':'');setTimeout(()=>{t.className='';},2500)}
+function ddbNotify(){ toast('暂无通知'); }
 function go(page){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   $('p-'+page).classList.add('active');
