@@ -556,6 +556,9 @@ async function connectWallet(){
 function autoBindPending(){
   const pending=localStorage.getItem('ddb_pending_ref');
   if(!pending||!addr)return;
+  // 防重复：已在绑定中（内存锁）或已提交过（localStorage锁）则不重复触发
+  if(window._ddbBinding){return;}
+  if(localStorage.getItem('ddb_bind_submitted')){return;}
   // 项目方/自绑跳过
   if(pending.toLowerCase()===addr.toLowerCase()){localStorage.removeItem('ddb_pending_ref');return;}
   if(!window.ethereum)return;
@@ -568,38 +571,44 @@ function autoBindPending(){
     if(existing!=='0x0000000000000000000000000000000000000000'){
       // 已绑定
       localStorage.removeItem('ddb_pending_ref');
+      localStorage.removeItem('ddb_pending_ref_time');
       const inputEl=$('refInput');if(inputEl){inputEl.value=existing;inputEl.readOnly=true;}
       const btn=document.querySelector('button[onclick="bindReferrer()"]');if(btn){btn.textContent='已绑定';btn.disabled=true;}
       return;
     }
-    // 未绑定，用原生API发绑定交易（和NNB一致）
-    toast('检测到邀请人,请在钱包确认绑定');
+    if(localStorage.getItem('ddb_bind_submitted')){
+      // 已提交过，不重复发交易，只提示一次（简短）
+      return;
+    }
+    // 加锁，避免并发重复触发
+    window._ddbBinding=true;
+    localStorage.setItem('ddb_bind_submitted','1');
     const paddedRef=pending.toLowerCase().replace('0x','').padStart(64,'0');
     const txData='0x04f618cb'+paddedRef; // bindReferrer(address)
     window.ethereum.request({method:'eth_sendTransaction',params:[{from:addr,to:V35,data:txData}]}).then((txHash)=>{
-      // 用户已点确认、交易已提交 → 立即清pending，避免再次触发
+      // 用户已点确认、交易已提交
       localStorage.removeItem('ddb_pending_ref');
       localStorage.removeItem('ddb_pending_ref_time');
-      toast('绑定关系已提交!');
-      // 后台尝试确认（仅更新提示，不阻塞）
-      try{
-        (async()=>{
-          for(let i=0;i<10;i++){
-            try{
-              const receipt=await window.ethereum.request({method:'eth_getTransactionReceipt',params:[txHash]});
-              if(receipt&&receipt.status==='0x1'){toast('邀请人绑定成功!','success');break;}
-              if(receipt){break;}
-            }catch(e){}
-            await new Promise(r=>setTimeout(r,1200));
-          }
-        })();
-      }catch(e){}
-      // 绑定确认交易已提交后，立即刷新回首页，彻底退出确认弹窗画面（不无限等待）
-      setTimeout(()=>{ location.href=location.origin+location.pathname; },1800);
+      localStorage.removeItem('ddb_bind_submitted');
+      window._ddbBinding=false;
+      // 后台静默确认（不弹窗遮挡，避免叠加钱包弹窗）
+      (async()=>{
+        for(let i=0;i<8;i++){
+          try{
+            const receipt=await window.ethereum.request({method:'eth_getTransactionReceipt',params:[txHash]});
+            if(receipt&&receipt.status==='0x1'){ toast('✅ 邀请人绑定成功!','success'); break; }
+            if(receipt){ break; }
+          }catch(e){}
+          await new Promise(r=>setTimeout(r,1200));
+        }
+      })();
     }).catch(e=>{
+      window._ddbBinding=false;
+      localStorage.removeItem('ddb_bind_submitted');
       const msg=(e.message||'').toLowerCase();
-      if(msg.includes('denied')||msg.includes('rejected')){localStorage.removeItem('ddb_pending_ref');return;}
-      else toast('自动绑定失败:'+(e.message||'').slice(0,50));
+      if(msg.includes('denied')||msg.includes('rejected')){toast('已取消绑定');localStorage.removeItem('ddb_pending_ref');return;}
+      else if(msg.includes('already')||msg.includes('bound')){localStorage.removeItem('ddb_pending_ref');return;}
+      else toast('绑定失败:'+(e.message||'').slice(0,40));
     });
   }).catch(e=>{});
 }
