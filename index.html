@@ -428,6 +428,10 @@ body{
     <div class="node-perk"><div class="dot">☷</div><span data-i18n="node_perk1">激活节点，享伞下团队 9% 收益</span></div>
     <div class="node-perk"><div class="dot">☵</div><span>10% 分红池，节点全网自动平均分红</span></div>
     <div class="node-perk"><div class="dot">☶</div><span data-i18n="node_perk3">一次开通，终生有效</span></div>
+    <div style="margin:12px 0;padding:10px 12px;background:rgba(255,215,0,0.08);border:1px solid var(--gold-line);border-radius:10px;text-align:center">
+      <div style="font-size:12px;color:var(--text-dim)" data-i18n="node_fee_label">激活节点费用</div>
+      <div style="font-size:20px;font-weight:800;color:var(--jin)"><span id="nodeFeeAmt">--</span> USDT</div>
+    </div>
     <div style="margin-top:12px"><button class="btn btn-gold" onclick="activateNode()" data-i18n="node_btn">激活节点</button></div>
     <div style="margin-top:10px;text-align:center;background:rgba(0,200,150,0.08);border:1px solid rgba(0,200,150,0.25);border-radius:10px;padding:10px">
       <div style="font-size:12px;color:var(--text-dim)" data-i18n="node_div">可领分红</div>
@@ -900,9 +904,18 @@ async function bindReferrer(){
 async function loadNode(){
   if(!addr||!provider)return;
   try{
-    const biz=new ethers.Contract(C.contracts.referral,['function isNode(address) view returns (bool)','function nodeDividendClaimable(address) view returns (uint256)'],provider);
+    const biz=new ethers.Contract(C.contracts.referral,['function isNode(address) view returns (bool)','function nodeDividendClaimable(address) view returns (uint256)','function currentNodeFee(uint256) view returns (uint256)','function nodeBaseFee() view returns (uint256)','function nodeFeeCap() view returns (uint256)'],provider);
     const isN=await biz.isNode(addr);
     $('nodeStatus').textContent=isN?'已激活节点':'未激活';
+    // 顯示激活节点费用 (当前生效费, 会每月+100, 封顶2000)
+    try{
+      const nowTs=Math.floor(Date.now()/1000);
+      let fee;
+      try{ fee=await biz.currentNodeFee(nowTs); }
+      catch(e2){ fee=await biz.nodeBaseFee(); }
+      const feeEl=$('nodeFeeAmt');
+      if(feeEl) feeEl.textContent=parseFloat(ethers.utils.formatUnits(fee,18)).toLocaleString(undefined,{maximumFractionDigits:0});
+    }catch(e){}
     try{
       const div=await biz.nodeDividendClaimable(addr);
       const dAmt=$('nodeDivAmt');if(dAmt)dAmt.textContent=parseFloat(ethers.utils.formatUnits(div,18)).toLocaleString(undefined,{maximumFractionDigits:2});
@@ -999,6 +1012,6 @@ window.addEventListener('load',()=>{
 ['buyAmt','sellAmt'].forEach(id=>{document.addEventListener('input',e=>{if(e.target.id===id)updatePreview()})});
 </script>
 
-<script src="ddb_lang.js?v=4"></script>
+<script src="ddb_lang.js?v=5"></script>
 </body>
 </html>
