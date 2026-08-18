@@ -355,7 +355,15 @@ body{
   </div>
   <div class="card">
     <div class="section-title" style="margin:0 0 12px" data-i18n="reinvest">复投（3倍产能）</div>
-    <button class="btn btn-green" onclick="reinvest()" data-i18n="reinvest_btn">复投 (最低1000 DDB)</button>
+    <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+      <span style="color:var(--text-dim);font-size:13px" data-i18n="reinvest_bal_label">钱包 DDB 余额</span>
+      <span style="color:var(--text);font-size:14px;font-weight:600" id="reinvestBal">0.0000</span>
+    </div>
+    <div style="position:relative;margin-bottom:10px">
+      <input class="input" id="reinvestAmt" type="number" placeholder="💲" data-i18n-placeholder="reinvest_ph" style="padding-right:70px">
+      <button onclick="fillReinvestAll()" style="position:absolute;right:4px;top:50%;transform:translateY(-50%);padding:8px 14px;border:none;border-radius:8px;background:var(--bg-mid);color:var(--jin);font-size:13px;font-weight:600;border:1px solid var(--gold-line)">全部</button>
+    </div>
+    <button class="btn btn-green" onclick="reinvest()" data-i18n="reinvest_btn">确认复投</button>
   </div>
   <div class="card" style="background:linear-gradient(135deg,rgba(255,87,34,0.12),rgba(180,77,255,0.10))">
     <div class="section-title" style="color:var(--jin);margin:0 0 6px" data-i18n="transfer_title">DDB 互转（DApp 内·计业绩）</div>
@@ -626,6 +634,7 @@ async function loadBal(){
     userUSDT=parseFloat(ethers.utils.formatUnits(await us.balanceOf(addr),18));
     const mb=$('tokBal');if(mb)mb.textContent=userDDB.toFixed(4);
     const mb2=$('mineBal');if(mb2)mb2.textContent=userDDB.toFixed(4);
+    const rbv=$('reinvestBal');if(rbv)rbv.textContent=userDDB.toFixed(4);
     if(typeof updateMineEstimate==='function')updateMineEstimate();
   }catch(e){}
 }
@@ -869,15 +878,28 @@ async function doDDTransfer(){
 function updTransPerf(){const a=parseFloat(document.getElementById('transAmt')?.value)||0;const el=document.getElementById('transPerfPreview');if(el)el.textContent=(a*currentPrice).toFixed(4)+' USDT'}
 async function reinvest(){
   if(!addr){toast('请先连接钱包');return}
-  const amt=1000;
+  const amtStr=$('reinvestAmt')?.value;
+  const amt=parseFloat(amtStr);
+  if(!amt||amt<=0){toast('请输入复投的 DDB 数量');return}
+  if(amt<1000){toast('最低复投 1000 DDB');return}
+  if(amt>userDDB){toast('钱包 DDB 余额不足');return}
   try{
-    toast('复投中(1000 DDB)...');
+    // 先授权 DDB 给合约 (复投会烧 DDB)
+    const tk=new ethers.Contract(C.tokens.DDB,['function approve(address,uint256)','function allowance(address,address) view returns (uint256)'],signer);
+    const need=ethers.utils.parseUnits(amt.toFixed(6),18);
+    const allow=await tk.allowance(addr,C.contracts.referral);
+    if(allow.lt(need)){ toast('授权DDB...'); const ap=await tk.approve(C.contracts.referral,need); await ap.wait(); }
+    toast('复投中('+amt+' DDB)...');
     const biz=new ethers.Contract(C.contracts.referral,['function reinvest(uint256)'],signer);
-    const tx=await biz.reinvest(ethers.utils.parseUnits('1000',18));
+    const tx=await biz.reinvest(need);
     await tx.wait();
-    toast('复投成功!3倍产能',true);loadMine();
+    toast('复投成功!3倍产能',true);loadMine();loadBal();
   }catch(e){toast('复投失败:'+(e.reason||e.message).slice(0,60))}
 }
+function fillReinvestAll(){
+  if(userDDB>0){const el=$('reinvestAmt');if(el)el.value=userDDB.toFixed(4);}
+}
+
 async function bindReferrer(){
   if(!addr){toast('请先连接钱包');return}
   let ref=$('refInput').value.trim();
@@ -1012,6 +1034,6 @@ window.addEventListener('load',()=>{
 ['buyAmt','sellAmt'].forEach(id=>{document.addEventListener('input',e=>{if(e.target.id===id)updatePreview()})});
 </script>
 
-<script src="ddb_lang.js?v=5"></script>
+<script src="ddb_lang.js?v=6"></script>
 </body>
 </html>
