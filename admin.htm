@@ -65,6 +65,7 @@ body{font-family:'Noto Sans SC','Microsoft YaHei',sans-serif;background:var(--bg
   <div class="admin-tab" onclick="showPanel(this,'panel-fee')">分账/手续费</div>
   <div class="admin-tab" onclick="showPanel(this,'panel-miner')">矿机/加速</div>
   <div class="admin-tab" onclick="showPanel(this,'panel-market')">模式</div>
+  <div class="admin-tab" onclick="showPanel(this,'panel-team')">伞下团队</div>
 </div>
 
 <div class="admin-panel active" id="panel-user">
@@ -160,6 +161,17 @@ body{font-family:'Noto Sans SC','Microsoft YaHei',sans-serif;background:var(--bg
   </div>
 </div>
 
+
+<div class="admin-panel" id="panel-team">
+  <div class="card">
+    <div style="font-size:14px;font-weight:700;margin-bottom:10px">伞下团队查询</div>
+    <div class="field-row"><label>钱包地址</label><input class="input" id="teamAddr" placeholder="0x..."></div>
+    <button class="btn btn-purple" onclick="queryTeam()">查询伞下团队</button>
+    <div class="query-result" id="teamResult">输入钱包地址查询</div>
+    <div style="margin-top:10px;font-size:11px;color:var(--text-dim)">统计基于链上 allUsers（V22后新登记用户），伞下所有层级，纯只读免费</div>
+  </div>
+</div>
+
 <div id="status"></div>
 <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 <script>
@@ -243,6 +255,49 @@ async function stopMarket(){try{const c=new ethers.Contract(C.proxy,['function s
 async function setRates(){try{const c=new ethers.Contract(C.proxy,['function setClaimRates(uint256,uint256,uint256)','function setClaimBurnRate(uint256)'],signer);const tx=await c.setClaimRates($('rateUser').value,$('rateNode').value,$('rateProj').value);await tx.wait();const tx2=await c.setClaimBurnRate($('rateBurn').value);await tx2.wait();toast('分账已设','success');await loadContractInfo()}catch(e){toast('失败:'+e.reason||e.message,'error')}}
 async function setMode(m){try{const c=new ethers.Contract(C.proxy,['function setTradingMode(uint256)'],signer);const tx=await c.setTradingMode(m);await tx.wait();toast('模式已切换','success');await loadContractInfo()}catch(e){toast('失败:'+e.reason||e.message,'error')}}
 if(typeof window.ethereum!=='undefined'){connectWallet();}
+
+// ===== 伞下团队查询 (只读, 链上 allUsers) =====
+async function queryTeam(){
+  const a=validAddr('teamAddr'); if(!a) return;
+  const btn=document.querySelector('button[onclick="queryTeam()"]');
+  if(btn){ btn.disabled=true; btn.textContent='查询中...'; }
+  try{
+    const p=provider || new ethers.providers.JsonRpcProvider(C.rpc);
+    const biz=new ethers.Contract(C.proxy,[
+      'function getAllUsers() view returns (address[])',
+      'function getUserReferrer(address) view returns (address)',
+      'function users(address) view returns (bool,bool,uint256,uint256,uint256,uint256,uint256,uint256,uint256,address,uint256,uint256,uint256,uint256,uint256)'
+    ],p);
+    const ZERO='0x0000000000000000000000000000000000000000';
+    const target=ethers.utils.getAddress(a);
+    const allUsers=await biz.getAllUsers();
+    let totalInvest=0,nodeCnt=0,memberCnt=0;
+    for(const ua of allUsers){
+      const u=ethers.utils.getAddress(ua);
+      if(u.toLowerCase()===target.toLowerCase()) continue;
+      let cur=u, under=false, depth=0;
+      while(depth<50){
+        const ref=ethers.utils.getAddress(await biz.getUserReferrer(cur));
+        if(ref.toLowerCase()===target.toLowerCase()){ under=true; break; }
+        if(ref===ZERO||ref.toLowerCase()===cur.toLowerCase()) break;
+        cur=ref; depth++;
+      }
+      if(under){
+        memberCnt++;
+        const d=await biz.users(u);
+        totalInvest += parseFloat(ethers.utils.formatUnits(d[2],18));
+        if(d[1]) nodeCnt++;
+      }
+    }
+    $('teamResult').innerHTML=
+      '<div class="row"><span>伞下成员数</span><span>'+memberCnt+'</span></div>'+
+      '<div class="row"><span>伞下认购U业绩</span><span>'+totalInvest.toFixed(2)+' USDT</span></div>'+
+      '<div class="row"><span>伞下节点数</span><span>'+nodeCnt+'</span></div>';
+    toast('伞下团队查询完成','success');
+  }catch(e){ toast('查询失败:'+(e.reason||e.message).slice(0,50),'error'); }
+  finally{ if(btn){ btn.disabled=false; btn.textContent='查询伞下团队'; } }
+}
+
 </script>
 </body>
 </html>
