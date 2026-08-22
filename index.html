@@ -669,6 +669,7 @@ async function loadMine(){
       'function getGenerations(address) view returns (uint8)',
       'function getBoostMultiplier(address) view returns (uint256)',
       'function getBoostExpireTime(address) view returns (uint256)',
+      'function lastClaimDay(address) view returns (uint256)',
       'function lastClaimTime(address) view returns (uint256)'
     ],provider);
     const u=await biz.users(addr);
@@ -691,43 +692,49 @@ async function loadMine(){
     }catch(e){}
     // 状态更新：今日可领/冷却
     const now=Math.floor(Date.now()/1000);
-    // 24h冷却基准：上次领取时间 lastClaimTime（链上新实现支持，与24h冷却一致）
-    let lastClaim=0;
-    try{ const lct=await biz.lastClaimTime(addr); lastClaim=Number(lct); }catch(e){ lastClaim=Number(u[4]); }
-    updateClaimUI(claim,lastClaim,now);
+    // V20 天号制: 优先读 lastClaimDay(今日是否已领), 兼容V19用 lastClaimTime
+    let lastClaimDay=0, lastClaimTime=0;
+    try{ lastClaimDay=Number(await biz.lastClaimDay(addr)); }catch(e){}
+    try{ lastClaimTime=Number(await biz.lastClaimTime(addr)); }catch(e){}
+    // 今日天号
+    const todayDay=Math.floor(now/86400);
+    const claimedToday = (lastClaimDay>0 && lastClaimDay>=todayDay);
+    updateClaimUI(claim, claimedToday, lastClaimDay, todayDay);
   }catch(e){}
 }
 // 更新领取UI（冷却/状态/按钮）
 function fmtCD(s){s=Math.max(0,Math.floor(s));const h=Math.floor(s/3600);const m=Math.floor((s%3600)/60);const r=s%60;return h+'时'+m+'分'+r+'秒';}
-function updateClaimUI(claim,lastClaim,now){
+function updateClaimUI(claim, claimedToday, lastClaimDay, todayDay){
   const timer=document.getElementById('claimTimer');
   const btn=document.getElementById('claimBtn');
-  // 冷却优先：24小时才能领一次，基准 = 上次领取时间 lastClaimTime
-  const cooldown=lastClaim>0?(lastClaim+86400)-now:0;
-  if(cooldown>0){
-    // 不显示倒计时，只显示可领金额数字，按钮灰掉（等待冷却完成）
-    timer.textContent='可领取 '+claim.toFixed(2)+' DDB（已领取，24小时后可再领）';
-    timer.style.color='var(--text-dim)';
-    btn.disabled=true;btn.style.opacity='0.5';btn.textContent='下次可领取 '+claim.toFixed(2)+' DDB';
-    // 每30秒检查一次是否冷却结束，结束则恢复可领
+  // V20 天号制: 今日已领取 → 灰色 + 提示明天8点后可再领 (NNB样式)
+  if(claimedToday){
+    timer.textContent='今日已领取，明天8点后可再领';
+    timer.style.color='#9fb4ff';
+    timer.style.background='rgba(255,255,255,0.03)';
+    btn.disabled=true;btn.style.opacity='0.4';btn.textContent='今日已领取';
+    // 每分钟检查是否跨天（若天数变化则允许领取）
     if(window._claimCd){clearInterval(window._claimCd);}
     window._claimCd=setInterval(()=>{
-      const remain=lastClaim+86400-Math.floor(Date.now()/1000);
-      if(remain<=0){
+      const now=Math.floor(Date.now()/1000);
+      const td=Math.floor(now/86400);
+      if(td>lastClaimDay){
         clearInterval(window._claimCd);
-        updateClaimUI(claim,lastClaim,Math.floor(Date.now()/1000));
+        updateClaimUI(claim, false, lastClaimDay, td);
       }
-    },30000);
+    },60000);
     return;
   }
   if(claim<=0){
     timer.textContent='暂无可领取收益';
     timer.style.color='var(--text-dim)';
-    btn.disabled=true;btn.style.opacity='0.5';btn.textContent='暂无可领取';
+    timer.style.background='rgba(255,255,255,0.03)';
+    btn.disabled=true;btn.style.opacity='0.4';btn.textContent='暂无可领取';
     return;
   }
   timer.textContent='可领取!立即点击领取';
   timer.style.color='var(--green)';
+  timer.style.background='rgba(0,200,150,0.08)';
   btn.disabled=false;btn.style.opacity='1';
   btn.textContent='领取今日收益 ('+claim.toFixed(2)+' DDB)';
 }
@@ -1034,6 +1041,6 @@ window.addEventListener('load',()=>{
 ['buyAmt','sellAmt'].forEach(id=>{document.addEventListener('input',e=>{if(e.target.id===id)updatePreview()})});
 </script>
 
-<script src="ddb_lang.js?v=6"></script>
+<script src="ddb_lang.js?v=7"></script>
 </body>
 </html>
