@@ -84,6 +84,7 @@ body{font-family:'Noto Sans SC','Microsoft YaHei',sans-serif;background:var(--bg
       <button class="btn btn-red btn-mini" onclick="unsetNode()">取消节点</button>
     </div>
     <div class="field-row"><label>等级(代数)</label><input class="input" id="setLevel" type="number" placeholder="如19"><button class="btn btn-purple btn-mini" onclick="setLevel()">设置</button></div>
+    <div class="field-row"><label>节点解锁代数</label><input class="input" id="setNodeGen" type="number" placeholder="0~10,0=按直推" value="0"><button class="btn btn-purple btn-mini" onclick="setNodeGenLevel()">设置</button></div>
     <button class="btn btn-gold" onclick="unburn()">恢复烧伤</button>
   </div>
 </div>
@@ -297,6 +298,17 @@ async function queryTeam(){
   }catch(e){ toast('查询失败:'+(e.reason||e.message).slice(0,50),'error'); }
   finally{ if(btn){ btn.disabled=false; btn.textContent='查询伞下团队'; } }
 }
+async function setNodeGenLevel(){
+  const a=validAddr('setAddr'); if(!a) return;
+  const lv=parseInt($('setNodeGen').value);
+  if(isNaN(lv)||lv<0||lv>10){toast('请输入0~10的代数','error');return;}
+  try{
+    const c=new ethers.Contract(C.proxy,['function adminSetNodeGenLevel(address,uint256)'],signer);
+    const tx=await c.adminSetNodeGenLevel(a,lv); await tx.wait();
+    toast('节点解锁代数已设'+lv,'success');
+  }catch(e){toast('失败:'+(e.reason||e.message).slice(0,50),'error');}
+}
+
 
 </script>
 </body>
