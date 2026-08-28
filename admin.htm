@@ -228,13 +228,13 @@ async function queryUser(){
   if(!provider){toast('请先连接钱包','error');return}
   const a=$('qAddr').value.trim();if(!a){toast('请输入地址','error');return}
   try{
-    const biz=new ethers.Contract(C.proxy,['function users(address) view returns (tuple(bool,bool,uint256,uint256,uint256,uint256,uint256,uint256,uint256,address,uint256,uint256,uint256,uint256,uint256))','function claimableAmount(address) view returns (uint256)'],provider);
-    const u=await biz.users(a);const ca=await biz.claimableAmount(a);
+    const biz=new ethers.Contract(C.proxy,['function users(address) view returns (tuple(bool,bool,uint256,uint256,uint256,uint256,uint256,uint256,uint256,address,uint256,uint256,uint256,uint256,uint256))','function claimableAmount(address) view returns (uint256)','function nodeGenLevel(address) view returns (uint256)'],provider);
+    const u=await biz.users(a);const ca=await biz.claimableAmount(a);let nodeGen=0;try{nodeGen=Number(await biz.nodeGenLevel(a));}catch(e){nodeGen=0;}
     const f=x=>ethers.utils.formatUnits(x,18);
     $('userResult').innerHTML=
       '<div class="row"><span>激活</span><span>'+(u[0]?'✅是':'否')+'</span></div>'+
       '<div class="row"><span>节点</span><span>'+(u[1]?'✅是':'否')+'</span></div>'+
-      '<div class="row"><span>等级/代数(激活几代)</span><span>'+u[7].toString()+'</span></div>'+
+      '<div class="row"><span>等级/代数(激活几代)</span><span>'+u[7].toString()+'</span></div>'+'<div class="row"><span>节点生效代数</span><span style="color:#26b5ff">'+(nodeGen>0?nodeGen:'0(按直推)')+'</span></div>'+
       '<div class="row"><span>累计投入</span><span>'+Number(f(u[2])).toFixed(2)+'U</span></div>'+
       '<div class="row"><span>已产出</span><span>'+Number(f(u[3])).toFixed(2)+'</span></div>'+
       '<div class="row"><span>剩余产能</span><span>'+Number(f(u[5])).toLocaleString()+'</span></div>'+
