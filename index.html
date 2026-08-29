@@ -770,6 +770,7 @@ async function subscribeMining(){
 async function doBuy(){
   if(!addr){toast('请先连接钱包');return}
   if(!marketOn){toast('市场尚未启动，暂不可买入',true);return}
+  try{const ck=new ethers.Contract(C.contracts.referral,['function buyEnabled() view returns (bool)'],provider);if(!(await ck.buyEnabled())){toast('买入已暂停，请稍后再试',true);return}}catch(e){}
   const amt=parseFloat($('buyAmt').value);
   if(!amt||amt<=0){toast('请输入金额');return}
   try{
