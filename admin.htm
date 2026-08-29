@@ -86,10 +86,13 @@ body{font-family:'Noto Sans SC','Microsoft YaHei',sans-serif;background:var(--bg
     </div>
     <div class="field-row"><label>等级(代数)</label><input class="input" id="setLevel" type="number" placeholder="如19"><button class="btn btn-purple btn-mini" onclick="setLevel()">设置</button></div>
     <button class="btn btn-gold" onclick="unburn()">恢复烧伤</button>
+    <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--gold-line)">
+      <div style="font-size:13px;font-weight:700;color:#ff6b6b;margin-bottom:8px">⚠ 重置用户(清空产能/业绩/节点/推荐)</div>
+      <button class="btn btn-red btn-mini" style="width:100%" onclick="resetUser()">单用户重置(清空产能)</button>
+      <div class="field-row" style="margin-top:8px"><label>批量地址(逗号分隔)</label><input class="input" id="resetManyAddr" placeholder="0x...,0x..."><button class="btn btn-red btn-mini" onclick="resetMany()">批量重置</button></div>
+    </div>
   </div>
 </div>
-
-<div class="admin-panel" id="panel-issue">
   <div class="card">
     <div style="font-size:14px;font-weight:700;margin-bottom:10px">直接发币给用户</div>
     <input class="input" id="distAddr" placeholder="目标钱包地址">
@@ -272,6 +275,15 @@ async function setNode(){const a=validAddr('setAddr');if(!a)return;try{const c=n
 async function unsetNode(){const a=validAddr('setAddr');if(!a)return;try{const c=new ethers.Contract(C.proxy,['function adminSetNode(address,bool)'],signer);const tx=await c.adminSetNode(a,false);await tx.wait();toast('已取消节点','success')}catch(e){toast('失败:'+(e.reason||e.message).slice(0,80),'error')}}
 async function setLevel(){const a=validAddr('setAddr');if(!a)return;const lv=parseInt($('setLevel').value);if(!lv||lv<1){toast('请填有效的等级(代数)','error');return;}try{const c=new ethers.Contract(C.proxy,['function adminSetUserLevel(address,uint256)'],signer);const tx=await c.adminSetUserLevel(a,lv);await tx.wait();toast('等级设置成功','success')}catch(e){toast('失败:'+(e.reason||e.message).slice(0,80),'error')}}
 async function unburn(){const a=validAddr('setAddr');if(!a)return;try{const c=new ethers.Contract(C.proxy,['function adminUnburn(address)'],signer);const tx=await c.adminUnburn(a);await tx.wait();toast('已恢复','success')}catch(e){toast('失败:'+(e.reason||e.message).slice(0,80),'error')}}
+// ===== 重置用户(清空产能/业绩/节点/推荐) =====
+async function resetUser(){const a=validAddr('setAddr');if(!a)return;
+  if(!confirm('确定重置该用户?\n将清空: 激活/节点/产能/累计业绩/已产出/推荐人/加速\n此操作不可逆!\n\n'+a))return;
+  try{const c=new ethers.Contract(C.proxy,['function adminResetUser(address)'],signer);const tx=await c.adminResetUser(a);await tx.wait();toast('已重置(清空产能)','success')}catch(e){toast('失败:'+((e.reason||e.message)+'').slice(0,80),'error')}}
+async function resetMany(){const raw=$('resetManyAddr').value.trim();if(!raw){toast('请填写至少一个地址','error');return}
+  const arr=raw.split(/[,\s]+/).filter(x=>/^0x[a-fA-F0-9]{40}$/.test(x));
+  if(!arr.length){toast('没有有效的地址','error');return}
+  if(!confirm('确定批量重置 '+arr.length+' 个用户?\n清空产能/业绩/节点/推荐\n此操作不可逆!'))return;
+  try{const c=new ethers.Contract(C.proxy,['function adminResetMany(address[])'],signer);const tx=await c.adminResetMany(arr);await tx.wait();toast('已批量重置 '+arr.length+' 个','success')}catch(e){toast('失败:'+((e.reason||e.message)+'').slice(0,80),'error')}}
 async function distribute(){const a=validAddr('distAddr');if(!a)return;const amt=$('distAmt').value;if(!parseFloat(amt)){toast('请填发币数量','error');return;}try{const c=new ethers.Contract(C.proxy,['function adminDistribute(address,uint256)'],signer);const tx=await c.adminDistribute(a,ethers.utils.parseUnits(amt,18));await tx.wait();toast('发币成功','success')}catch(e){toast('失败:'+(e.reason||e.message).slice(0,80),'error')}}
 async function setPrice(){try{const c=new ethers.Contract(C.proxy,['function setPrice(uint256)'],signer);const tx=await c.setPrice(ethers.utils.parseUnits($('setPriceIn').value,18));await tx.wait();toast('价格已设','success');await loadContractInfo()}catch(e){toast('失败:'+e.reason||e.message,'error')}}
 async function setRate(){try{const c=new ethers.Contract(C.proxy,['function setDailyRate(uint256)'],signer);const tx=await c.setDailyRate($('setRateIn').value);await tx.wait();toast('涨幅已设','success');await loadContractInfo()}catch(e){toast('失败:'+e.reason||e.message,'error')}}
