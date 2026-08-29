@@ -66,6 +66,7 @@ body{font-family:'Noto Sans SC','Microsoft YaHei',sans-serif;background:var(--bg
   <div class="admin-tab" onclick="showPanel(this,'panel-miner')">矿机/加速</div>
   <div class="admin-tab" onclick="showPanel(this,'panel-market')">模式</div>
   <div class="admin-tab" onclick="showPanel(this,'panel-team')">伞下团队</div>
+  <div class="admin-tab" onclick="showPanel(this,'panel-v26')">V26交易控</div>
 </div>
 
 <div class="admin-panel active" id="panel-user">
@@ -84,7 +85,6 @@ body{font-family:'Noto Sans SC','Microsoft YaHei',sans-serif;background:var(--bg
       <button class="btn btn-red btn-mini" onclick="unsetNode()">取消节点</button>
     </div>
     <div class="field-row"><label>等级(代数)</label><input class="input" id="setLevel" type="number" placeholder="如19"><button class="btn btn-purple btn-mini" onclick="setLevel()">设置</button></div>
-    <div class="field-row"><label>节点解锁代数</label><input class="input" id="setNodeGen" type="number" placeholder="0~10,0=按直推" value="0"><button class="btn btn-purple btn-mini" onclick="setNodeGenLevel()">设置</button></div>
     <button class="btn btn-gold" onclick="unburn()">恢复烧伤</button>
   </div>
 </div>
@@ -173,6 +173,26 @@ body{font-family:'Noto Sans SC','Microsoft YaHei',sans-serif;background:var(--bg
   </div>
 </div>
 
+<div class="admin-panel" id="panel-v26">
+  <div class="card">
+    <div style="font-size:14px;font-weight:700;margin-bottom:10px">V26 交易控制 (买入开关/底池管理)</div>
+    <div class="field-row"><label>买入开关</label><span class="v" id="buyEnabledVal">查询中...</span></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px">
+      <button class="btn btn-green" style="flex:1" onclick="setBuy(true)">开启买入</button>
+      <button class="btn btn-red" style="flex:1" onclick="setBuy(false)">关闭买入</button>
+    </div>
+    <div class="query-result" id="usdtBal" style="font-size:13px">合约 USDT 底池: 查询中...</div>
+    <div class="field-row"><label>提取到地址</label><input class="input" id="wdAddr" placeholder="0x..."></div>
+    <div class="field-row"><label>提取数量 USDT</label><input class="input" id="wdAmt" type="number" placeholder="留空=全部"></div>
+    <button class="btn btn-gold" onclick="withdrawUSDT()">提取底池 USDT</button>
+    <div style="margin-top:12px;padding:10px;background:rgba(255,180,0,0.1);border-radius:10px;font-size:12px;color:#ffd700;line-height:1.7">
+      V26说明: 买入 USDT 进合约自身作为底池; 卖出的 USDT 由合约支付(合约必须有钱才能卖出)。<br>
+      充值方式: 直接转账 USDT 到 Proxy 0x8DE1767683D4B3dF78163AD206A7Aeb7527c2D07。<br>
+      ownerWithdrawUSDT 可随时取回底池。
+    </div>
+  </div>
+</div>
+
 <div id="status"></div>
 <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 <script>
@@ -209,6 +229,10 @@ async function loadContractInfo(){
     $('tradeFee').value=await biz.tradeFeeRate();
     $('nodeBase').value=ethers.utils.formatUnits(await biz.nodeBaseFee(),18);$('nodeInc').value=ethers.utils.formatUnits(await biz.nodeFeeMonthlyIncrease(),18);$('nodeCap').value=ethers.utils.formatUnits(await biz.nodeFeeCap(),18);
     $('setPriceIn').value=ethers.utils.formatUnits(await biz.currentPrice(),18);
+    try{const v26=new ethers.Contract(C.proxy,['function buyEnabled() view returns (bool)','function ownerUSDTBalance() view returns (uint256)'],provider);
+      $('buyEnabledVal').textContent= await v26.buyEnabled()?'🟢 开启':'🔴 关闭';
+      $('usdtBal').textContent='合约 USDT 底池: '+ethers.utils.formatUnits(await v26.ownerUSDTBalance(),18)+' USDT';
+    }catch(e){}
   }catch(e){}
 }
 async function caller(fn,type,val){
@@ -228,13 +252,13 @@ async function queryUser(){
   if(!provider){toast('请先连接钱包','error');return}
   const a=$('qAddr').value.trim();if(!a){toast('请输入地址','error');return}
   try{
-    const biz=new ethers.Contract(C.proxy,['function users(address) view returns (tuple(bool,bool,uint256,uint256,uint256,uint256,uint256,uint256,uint256,address,uint256,uint256,uint256,uint256,uint256))','function claimableAmount(address) view returns (uint256)','function nodeGenLevel(address) view returns (uint256)'],provider);
-    const u=await biz.users(a);const ca=await biz.claimableAmount(a);let nodeGen=0;try{nodeGen=Number(await biz.nodeGenLevel(a));}catch(e){nodeGen=0;}
+    const biz=new ethers.Contract(C.proxy,['function users(address) view returns (tuple(bool,bool,uint256,uint256,uint256,uint256,uint256,uint256,uint256,address,uint256,uint256,uint256,uint256,uint256))','function claimableAmount(address) view returns (uint256)'],provider);
+    const u=await biz.users(a);const ca=await biz.claimableAmount(a);
     const f=x=>ethers.utils.formatUnits(x,18);
     $('userResult').innerHTML=
       '<div class="row"><span>激活</span><span>'+(u[0]?'✅是':'否')+'</span></div>'+
       '<div class="row"><span>节点</span><span>'+(u[1]?'✅是':'否')+'</span></div>'+
-      '<div class="row"><span>等级/代数(激活几代)</span><span>'+u[7].toString()+'</span></div>'+'<div class="row"><span>节点生效代数</span><span style="color:#26b5ff">'+(nodeGen>0?nodeGen:'0(按直推)')+'</span></div>'+
+      '<div class="row"><span>等级/代数(激活几代)</span><span>'+u[7].toString()+'</span></div>'+
       '<div class="row"><span>累计投入</span><span>'+Number(f(u[2])).toFixed(2)+'U</span></div>'+
       '<div class="row"><span>已产出</span><span>'+Number(f(u[3])).toFixed(2)+'</span></div>'+
       '<div class="row"><span>剩余产能</span><span>'+Number(f(u[5])).toLocaleString()+'</span></div>'+
@@ -255,6 +279,12 @@ async function startMarket(){try{const c=new ethers.Contract(C.proxy,['function 
 async function stopMarket(){try{const c=new ethers.Contract(C.proxy,['function setMarketStarted(bool)'],signer);const tx=await c.setMarketStarted(false);await tx.wait();toast('市场已暂停','success')}catch(e){toast('失败:'+e.reason||e.message,'error')}}
 async function setRates(){try{const c=new ethers.Contract(C.proxy,['function setClaimRates(uint256,uint256,uint256)','function setClaimBurnRate(uint256)'],signer);const tx=await c.setClaimRates($('rateUser').value,$('rateNode').value,$('rateProj').value);await tx.wait();const tx2=await c.setClaimBurnRate($('rateBurn').value);await tx2.wait();toast('分账已设','success');await loadContractInfo()}catch(e){toast('失败:'+e.reason||e.message,'error')}}
 async function setMode(m){try{const c=new ethers.Contract(C.proxy,['function setTradingMode(uint256)'],signer);const tx=await c.setTradingMode(m);await tx.wait();toast('模式已切换','success');await loadContractInfo()}catch(e){toast('失败:'+e.reason||e.message,'error')}}
+// ===== V26: 买入开关 / 底池提取 =====
+async function setBuy(v){try{const c=new ethers.Contract(C.proxy,['function setBuyEnabled(bool)'],signer);const tx=await c.setBuyEnabled(v);await tx.wait();toast('买入已'+(v?'开启':'关闭'),'success');await loadContractInfo()}catch(e){toast('失败:'+((e.reason||e.message)+'').slice(0,80),'error')}}
+async function withdrawUSDT(){const to=$('wdAddr').value.trim();if(!/^0x[a-fA-F0-9]{40}$/.test(to)){toast('请填写有效的提取地址','error');return}
+  const amtIn=$('wdAmt').value.trim();try{const c=new ethers.Contract(C.proxy,['function ownerWithdrawUSDT(address,uint256)'],signer);
+    const tx=amtIn===''?await c.ownerWithdrawUSDT(to,0):await c.ownerWithdrawUSDT(to,ethers.utils.parseUnits(amtIn,18));
+    await tx.wait();toast('提取成功','success');await loadContractInfo()}catch(e){toast('失败:'+((e.reason||e.message)+'').slice(0,80),'error')}}
 if(typeof window.ethereum!=='undefined'){connectWallet();}
 
 // ===== 伞下团队查询 (只读, 链上 allUsers) =====
@@ -298,17 +328,6 @@ async function queryTeam(){
   }catch(e){ toast('查询失败:'+(e.reason||e.message).slice(0,50),'error'); }
   finally{ if(btn){ btn.disabled=false; btn.textContent='查询伞下团队'; } }
 }
-async function setNodeGenLevel(){
-  const a=validAddr('setAddr'); if(!a) return;
-  const lv=parseInt($('setNodeGen').value);
-  if(isNaN(lv)||lv<0||lv>10){toast('请输入0~10的代数','error');return;}
-  try{
-    const c=new ethers.Contract(C.proxy,['function adminSetNodeGenLevel(address,uint256)'],signer);
-    const tx=await c.adminSetNodeGenLevel(a,lv); await tx.wait();
-    toast('节点解锁代数已设'+lv,'success');
-  }catch(e){toast('失败:'+(e.reason||e.message).slice(0,50),'error');}
-}
-
 
 </script>
 </body>
