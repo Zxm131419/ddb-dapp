@@ -260,12 +260,12 @@ body{
 </div>
 
 <!-- ============ 交易中心 ============ -->
+<!-- ============ 交易中心 (挂单交易, 对齐NNB) ============ -->
 <div id="p-trade" class="page">
   <div class="header">
     <div class="navbar">
       <div class="nav-left">
         <button class="nav-btn" onclick="go('home')"><i class="ph ph-caret-left"></i> <span data-i18n="back">返回首页</span></button>
-        <button class="nav-icon" onclick="ddbNotify()"><i class="ph ph-bell"></i></button>
         <button class="nav-icon" onclick="ddbToggleLangPanel()"><i class="ph ph-globe"></i></button>
       </div>
       <button class="btn-connect nav-connect" id="connBtn" onclick="connectWallet()"><i class="ph ph-wallet"></i> <span data-i18n="connect_wallet">连接钱包</span></button>
@@ -273,31 +273,41 @@ body{
   </div>
 
   <div class="tabs">
-    <button class="tab active" onclick="switchTab(this,'buy')" data-i18n="trade_buy">买入 DDB</button>
-    <button class="tab" onclick="switchTab(this,'sell')" data-i18n="trade_sell">卖出 DDB</button>
+    <button class="tab active" onclick="switchTab(this,'sell')" data-i18n="trade_sell">挂单卖出</button>
+    <button class="tab" onclick="switchTab(this,'buy')" data-i18n="trade_buy">买入挂单</button>
+    <button class="tab" onclick="switchTab(this,'my')" data-i18n="trade_my">我的挂单</button>
   </div>
-  <div id="marketNotice" style="display:none;margin:10px 0;padding:10px 12px;background:rgba(255,180,0,0.1);border:1px solid rgba(255,180,0,0.35);border-radius:10px;font-size:13px;color:var(--jin)">⏳ 市场尚未启动，交易中心买卖暂时不可用（认购/买矿机/领取正常）。启动后即可交易。</div>
-  <div id="trade-buy">
+
+  <!-- 挂单卖出 -->
+  <div id="trade-sell">
     <div class="card">
-      <div class="trade-input-row"><span style="color:var(--text-dim);font-size:13px;margin-right:8px" data-i18n="trade_pay">支付 USDT</span><input id="buyAmt" class="input" type="number" placeholder="💲" data-i18n-placeholder="trade_phbuy"></div>
-      <div class="stat-row"><span class="stat-label" data-i18n="trade_get">预计获得 DDB</span><span class="stat-val" id="buyPreview">0.00</span></div>
-      <div style="margin-top:12px"><button class="btn btn-green" onclick="doBuy()" data-i18n="trade_buy_btn">确认买入</button></div>
+      <div class="stat-row"><span class="stat-label">当前内部价</span><span class="stat-val" id="curPrice">-- USDT</span></div>
+      <div class="stat-row"><span class="stat-label">当前手续费</span><span class="stat-val" style="color:var(--jin)" id="curFee">--</span></div>
+      <div class="trade-input-row"><span style="color:var(--text-dim);font-size:13px;margin-right:8px">挂单数量 DDB</span><input id="sellAmt" class="input" type="number" placeholder="输入DDB数量" inputmode="decimal" oninput="updateSellPreview()"></div>
+      <div class="stat-row"><span class="stat-label">挂单余额</span><span class="stat-val" id="sellBal">0 DDB</span></div>
+      <div class="stat-row"><span class="stat-label">预计到账 USDT (扣手续费)</span><span class="stat-val" id="sellEstimate">0.00</span></div>
+      <div style="margin-top:12px"><button class="btn btn-red" onclick="doPlaceOrder()" data-i18n="trade_place">确认挂单</button></div>
+      <div class="muted" style="font-size:11px;margin-top:8px">挂单为授权式（不锁币），买方买入时 DDB 直接划转，USDT 直接到账。</div>
     </div>
   </div>
-  <div id="trade-sell" style="display:none">
+
+  <!-- 买入挂单 -->
+  <div id="trade-buy" style="display:none">
     <div class="card">
-      <div class="trade-input-row"><span style="color:var(--text-dim);font-size:13px;margin-right:8px" data-i18n="trade_sell">卖出 DDB</span><input id="sellAmt" class="input" type="number" placeholder="🔢" data-i18n-placeholder="trade_phsell"></div>
-      <div class="stat-row"><span class="stat-label" data-i18n="trade_to">预计到账 USDT (扣13%)</span><span class="stat-val" id="sellPreview">0.00</span></div>
-      <div style="margin-top:12px"><button class="btn btn-red" onclick="doSell()" data-i18n="trade_sell_btn">确认卖出</button></div>
+      <div class="stat-row"><span class="stat-label">当前内部价</span><span class="stat-val" id="curPrice2">-- USDT</span></div>
+      <div class="stat-row"><span class="stat-label">当前手续费</span><span class="stat-val" style="color:var(--jin)" id="curFee2">--</span></div>
     </div>
+    <div class="section-title" style="margin-top:10px">卖单列表 <span style="margin-left:auto" class="muted" onclick="loadSellOrders()" style="cursor:pointer">刷新</span></div>
+    <div id="sellOrdersList"><div style="text-align:center;color:var(--text-dim);padding:20px">连接钱包后显示</div></div>
   </div>
-  <div style="margin-top:14px">
-    <div class="stat-row stat-label" data-i18n="trade_pool">底池 USDT 总量</div>
-    <div style="font-size:15px;font-weight:700;color:var(--jin)" id="poolUSDT" data-i18n="trade_loading">加载中...</div>
+
+  <!-- 我的挂单 -->
+  <div id="trade-my" style="display:none">
+    <div class="section-title" style="margin-top:10px">我的挂单 <span style="margin-left:auto" class="muted" onclick="loadMyOrders()" style="cursor:pointer">刷新</span></div>
+    <div id="myOrdersList"><div style="text-align:center;color:var(--text-dim);padding:20px">连接钱包后显示</div></div>
   </div>
 </div>
 
-<!-- ============ 矿机 ============ -->
 <div id="p-mine" class="page">
   <div class="header">
     <div class="navbar">
@@ -471,8 +481,9 @@ const C={
   rpc:'https://bsc-dataseed1.binance.org:443',
   tokens:{DDB:'0x0607A5a7F0D0965b89826700756fD6B44284972d',
           USDT:'0x55d398326f99059fF775485246999027B3197955'},
-  contracts:{referral:'0x8DE1767683D4B3dF78163AD206A7Aeb7527c2D07',  // DDB Proxy
-             token:'0x8DE1767683D4B3dF78163AD206A7Aeb7527c2D07'},
+  contracts:{referral:'0x8DE1767683D4B3dF78163AD206A7Aeb7527c2D07',  // DDB Mining Proxy
+             token:'0x8DE1767683D4B3dF78163AD206A7Aeb7527c2D07',
+             market:'0xc323e3f228806a8a52c6a44ad6fe40a2e35640fb'},  // DDB Market (挂单交易)
   pool:'0x768c7DC9A029dab3c2F42D375Dd201DdC35BAf71'
 };
 let provider,signer,addr=null,currentPrice=0.013,userDDB=0,userUSDT=0;
@@ -486,7 +497,7 @@ function go(page){
   const map={home:0,trade:1,mine:2,invite:3,node:4};
   document.querySelectorAll('.bnav-item')[map[page]].classList.add('active');
   if(page==='mine'){loadMine();}
-  if(page==='trade'){loadPrice();loadPoolInfo();}
+  if(page==='trade'){loadPrice();loadTradeInfo();loadSellOrders();}
   if(page==='node'){loadNode();}
   if(page==='invite'){loadInvite();}
 }
@@ -657,6 +668,9 @@ function switchTab(el,tab){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');
   $('trade-buy').style.display=tab==='buy'?'':'none';
   $('trade-sell').style.display=tab==='sell'?'':'none';
+  $('trade-my').style.display=tab==='my'?'':'none';
+  if(tab==='buy')loadSellOrders();
+  if(tab==='my')loadMyOrders();
 }
 async function loadMine(){
   if(!addr||!provider)return;
@@ -767,42 +781,147 @@ async function subscribeMining(){
     loadMine();loadBal();
   }catch(e){toast('认购失败: '+(e.reason||e.message).slice(0,60))}
 }
-async function doBuy(){
-  if(!addr){toast('请先连接钱包');return}
-  if(!marketOn){toast('市场尚未启动，暂不可买入',true);return}
-  try{const ck=new ethers.Contract(C.contracts.referral,['function buyEnabled() view returns (bool)'],provider);if(!(await ck.buyEnabled())){toast('买入已暂停，请稍后再试',true);return}}catch(e){}
-  const amt=parseFloat($('buyAmt').value);
-  if(!amt||amt<=0){toast('请输入金额');return}
+// ============ 挂单交易 (对齐NNB, 调 DDBMarket) ============
+async function loadTradeInfo(){
+  if(!provider)return;
   try{
-    const us=new ethers.Contract(C.tokens.USDT,['function approve(address,uint256)','function allowance(address,address) view returns (uint256)'],signer);
-    const need=ethers.utils.parseUnits(amt.toFixed(6),18);
-    const allow=await us.allowance(addr,C.contracts.referral);
-    if(allow.lt(need)){const ap=await us.approve(C.contracts.referral,need);await ap.wait();}
-    toast('买入中...');
-    const biz=new ethers.Contract(C.contracts.referral,['function buyNNB(uint256)'],signer);
-    const tx=await biz.buyNNB(need);
-    await tx.wait();
-    toast('买入成功!',true);loadBal();
-  }catch(e){toast('买入失败: '+(e.reason||e.message).slice(0,60))}
+    const mkt=new ethers.Contract(C.contracts.market,[
+      'function currentFeeRate() view returns (uint256)',
+      'function currentPrice() view returns (uint256)'
+    ],provider);
+    let fee=await mkt.currentFeeRate();
+    let price=await mkt.currentPrice();
+    const feePct=(Number(fee)/10).toFixed(1)+'%';
+    const priceStr=(Number(price)/1e18).toFixed(6)+' USDT';
+    if($('curFee'))$('curFee').textContent=feePct;
+    if($('curFee2'))$('curFee2').textContent=feePct;
+    if($('curPrice'))$('curPrice').textContent=priceStr;
+    if($('curPrice2'))$('curPrice2').textContent=priceStr;
+    window._mktPrice=Number(price)/1e18;
+    window._mktFeePct=Number(fee);
+  }catch(e){console.log('loadTradeInfo',e)}
 }
-async function doSell(){
+
+function updateSellPreview(){
+  const amt=parseFloat($('sellAmt')?.value)||0;
+  const price=window._mktPrice||0.013;
+  const feeRate=(window._mktFeePct||130)/1000;
+  const gross=amt*price;
+  const net=gross*(1-feeRate);
+  if($('sellEstimate'))$('sellEstimate').textContent=net.toFixed(6)+' USDT';
+  if($('sellBal'))$('sellBal').textContent=userDDB.toFixed(4)+' DDB';
+}
+
+// 挂单卖出
+async function doPlaceOrder(){
   if(!addr){toast('请先连接钱包');return}
-  if(!marketOn){toast('市场尚未启动，暂不可卖出',true);return}
-  const amt=parseFloat($('sellAmt').value);
-  if(!amt||amt<=0){toast('请输入数量');return}
+  const amt=parseFloat($('sellAmt')?.value);
+  if(!amt||amt<=0){toast('请输入挂单数量');return}
   if(amt>userDDB){toast('DDB余额不足');return}
   try{
-    const tk=new ethers.Contract(C.tokens.DDB,['function approve(address,uint256)','function allowance(address,address) view returns (uint256)'],signer);
+    const price=(window._mktPrice||0.013);
+    const priceWei=ethers.utils.parseUnits(price.toFixed(18),18);
     const need=ethers.utils.parseUnits(amt.toFixed(6),18);
-    const allow=await tk.allowance(addr,C.contracts.referral);
-    if(allow.lt(need)){const ap=await tk.approve(C.contracts.referral,need);await ap.wait();}
-    toast('卖出中...');
-    const biz=new ethers.Contract(C.contracts.referral,['function sellNNB(uint256)'],signer);
-    const tx=await biz.sellNNB(need);
+    // DDB 授权给 Market
+    toast('授权DDB...');
+    const tk=new ethers.Contract(C.tokens.DDB,['function approve(address,uint256)','function allowance(address,address) view returns (uint256)'],signer);
+    const allow=await tk.allowance(addr,C.contracts.market);
+    if(allow.lt(need)){const ap=await tk.approve(C.contracts.market,need);await ap.wait();}
+    toast('挂单中...');
+    const mkt=new ethers.Contract(C.contracts.market,['function placeSellOrder(uint256,uint256) returns (uint256)'],signer);
+    const tx=await mkt.placeSellOrder(need, priceWei);
     await tx.wait();
-    toast('卖出成功!USDT已到账',true);loadBal();
-  }catch(e){toast('卖出失败:'+(e.reason||e.message).slice(0,60))}
+    toast('挂单成功!',true);loadBal();loadMyOrders();
+  }catch(e){toast('挂单失败: '+(e.reason||e.message).slice(0,60))}
 }
+
+// 加载卖单列表
+async function loadSellOrders(){
+  if(!provider){return}
+  const host=$('sellOrdersList');if(!host)return;
+  host.innerHTML='<div style="text-align:center;color:var(--text-dim);padding:20px">加载中...</div>';
+  try{
+    const mkt=new ethers.Contract(C.contracts.market,[
+      'function nextOrderId() view returns (uint256)',
+      'function getOrder(uint256) view returns (address,uint256,uint256,uint256,bool)'
+    ],provider);
+    const n=Number(await mkt.nextOrderId());
+    let html='';
+    for(let i=0;i<n;i++){
+      try{
+        const o=await mkt.getOrder(i);
+        const seller=o[0],amt=Number(o[1])/1e18,price=Number(o[2])/1e18,filled=Number(o[3])/1e18,active=o[4];
+        const remain=amt-filled;
+        if(!active||remain<=0)continue;
+        html+=`<div class="card" style="margin-bottom:8px"><div class="stat-row"><span class="stat-label">卖家 ${seller.slice(0,6)}...${seller.slice(-4)}</span><span class="stat-val">${remain.toFixed(2)} DDB</span></div><div class="stat-row"><span class="stat-label">价格</span><span class="stat-val">${price.toFixed(6)} USDT</span></div><div style="margin-top:8px"><button class="btn btn-green" onclick="doBuyOrder(${i},${remain})">买入</button></div></div>`;
+      }catch(e){}
+    }
+    host.innerHTML=html||'<div style="text-align:center;color:var(--text-dim);padding:20px">暂无卖单</div>';
+  }catch(e){host.innerHTML='<div style="text-align:center;color:#f66;padding:20px">加载失败</div>'}
+}
+
+// 买入挂单
+async function doBuyOrder(orderId, maxAmt){
+  if(!addr){toast('请先连接钱包');return}
+  const amtStr=prompt('输入买入数量 DDB (最多 '+maxAmt.toFixed(2)+')', maxAmt.toFixed(2));
+  if(!amtStr)return;
+  const amt=parseFloat(amtStr);
+  if(!amt||amt<=0){toast('数量无效');return}
+  try{
+    // 先读订单价格算需要多少USDT
+    const mktR=new ethers.Contract(C.contracts.market,['function getOrder(uint256) view returns (address,uint256,uint256,uint256,bool)'],provider);
+    const o=await mktR.getOrder(orderId);
+    const price=Number(o[2])/1e18;
+    const needUSDT=amt*price*1.05; // 多授权5%防手续费
+    toast('授权USDT...');
+    const us=new ethers.Contract(C.tokens.USDT,['function approve(address,uint256)','function allowance(address,address) view returns (uint256)'],signer);
+    const need=ethers.utils.parseUnits(needUSDT.toFixed(6),18);
+    const allow=await us.allowance(addr,C.contracts.market);
+    if(allow.lt(need)){const ap=await us.approve(C.contracts.market,need);await ap.wait();}
+    toast('买入中...');
+    const mkt=new ethers.Contract(C.contracts.market,['function buyFromOrder(uint256,uint256)'],signer);
+    const tx=await mkt.buyFromOrder(orderId, ethers.utils.parseUnits(amt.toFixed(6),18));
+    await tx.wait();
+    toast('买入成功!',true);loadBal();loadSellOrders();
+  }catch(e){toast('买入失败: '+(e.reason||e.message).slice(0,60))}
+}
+
+// 我的挂单
+async function loadMyOrders(){
+  if(!addr){return}
+  const host=$('myOrdersList');if(!host)return;
+  host.innerHTML='<div style="text-align:center;color:var(--text-dim);padding:20px">加载中...</div>';
+  try{
+    const mkt=new ethers.Contract(C.contracts.market,[
+      'function getUserOrders(address) view returns (uint256[])',
+      'function getOrder(uint256) view returns (address,uint256,uint256,uint256,bool)'
+    ],provider);
+    const ids=await mkt.getUserOrders(addr);
+    let html='';
+    for(const id of ids){
+      try{
+        const o=await mkt.getOrder(id);
+        const amt=Number(o[1])/1e18,filled=Number(o[3])/1e18,active=o[4];
+        const remain=amt-filled;
+        if(!active)continue;
+        html+=`<div class="card" style="margin-bottom:8px"><div class="stat-row"><span class="stat-label">订单 #${id}</span><span class="stat-val">${remain.toFixed(2)} / ${amt.toFixed(2)} DDB</span></div><div style="margin-top:8px"><button class="btn btn-red" onclick="doCancelOrder(${id})">撤单</button></div></div>`;
+      }catch(e){}
+    }
+    host.innerHTML=html||'<div style="text-align:center;color:var(--text-dim);padding:20px">暂无挂单</div>';
+  }catch(e){host.innerHTML='<div style="text-align:center;color:#f66;padding:20px">加载失败</div>'}
+}
+
+async function doCancelOrder(orderId){
+  if(!addr){toast('请先连接钱包');return}
+  try{
+    toast('撤单中...');
+    const mkt=new ethers.Contract(C.contracts.market,['function cancelOrder(uint256)'],signer);
+    const tx=await mkt.cancelOrder(orderId);
+    await tx.wait();
+    toast('撤单成功!',true);loadMyOrders();
+  }catch(e){toast('撤单失败: '+(e.reason||e.message).slice(0,60))}
+}
+
 function fillAllDDB(){
   if(userDDB>0){const el=$('mineAmt');if(el)el.value=userDDB.toFixed(4);}else{const el=$('mineAmt');if(el)el.value='0';}
   updateMineEstimate();
