@@ -3,7 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
 <title>鼎鼎币 DDB · 鼎立乾坤 · 聚财昌隆</title>
+<script>
+/* ===== 强制 HTTPS：钱包 App 在 http 明文页常拒绝注入 window.ethereum ===== */
+(function(){
+  try{
+    if(location.protocol==='http:' && location.hostname!=='localhost' && !/^(127\.0\.0\.1|0\.0\.0\.0)$/.test(location.hostname)){
+      location.replace('https://'+location.host+location.pathname+location.search+location.hash);
+    }
+  }catch(e){}
+})();
+</script>
 <style>
 /* ============ 五行 · 八卦 · 玄学国风设计 ============ */
 :root{
@@ -476,6 +487,26 @@ body{
 <!-- ============ 功能脚本 ============ -->
 <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 <script>
+/* ===== ethers CDN 兜底：主源加载失败时依次切换备用源 ===== */
+(function(){
+  if(typeof ethers!=='undefined')return;
+  var srcs=['https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js',
+            'https://unpkg.com/ethers@5.7.2/dist/ethers.umd.min.js',
+            'https://fastly.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js'];
+  var i=0;
+  function tryNext(){
+    if(typeof ethers!=='undefined')return;
+    if(i>=srcs.length)return;
+    var s=document.createElement('script');
+    s.src=srcs[i++];
+    s.onerror=tryNext;
+    s.onload=function(){if(typeof ethers==='undefined')tryNext();};
+    document.head.appendChild(s);
+  }
+  tryNext();
+})();
+</script>
+<script>
 const C={
   chainId:56,
   rpc:'https://bsc-dataseed1.binance.org:443',
@@ -566,6 +597,21 @@ async function connectWallet(){
     await provider.send('eth_requestAccounts',[]);
     signer=provider.getSigner();
     addr=await signer.getAddress();
+
+    /* ===== 链检测 + 自动切到 BSC (chainId 56) ===== */
+    try{
+      const net=await provider.getNetwork();
+      const cid=Number(net && net.chainId);
+      if(cid!==C.chainId){
+        toast('正在切换到 BSC 主网...');
+        await ensureBSCChain();
+        provider=new ethers.providers.Web3Provider(window.ethereum);
+        signer=provider.getSigner();
+      }
+    }catch(chainErr){
+      console.warn('[DDB] chain check:',chainErr);
+    }
+
     document.querySelectorAll('.btn-connect').forEach(b=>b.innerHTML=short(addr));
     toast('钱包已连接',true);
     const link=location.origin+location.pathname+'?ref='+addr;
@@ -573,7 +619,47 @@ async function connectWallet(){
     loadPrice();loadMine();loadNode();loadBal();loadInvite();loadPoolInfo();
     // 一键绑定：连接后自动绑定上级（如有pending ref）
     autoBindPending();
-  }catch(e){toast('连接失败')}
+  }catch(e){
+    /* ===== 不再吞错误：显示真实原因 ===== */
+    const raw=(e && (e.reason||e.message))||String(e);
+    const msg=walletErrText(e);
+    console.error('[DDB] connectWallet failed:',raw,e);
+    toast('连接失败：'+msg);
+  }
+}
+
+/* 钱包错误 → 人类可读原因 */
+function walletErrText(e){
+  const raw=((e && (e.reason||e.message))||String(e)).toLowerCase();
+  if(raw.indexOf('user rejected')>=0||raw.indexOf('user denied')>=0||raw.indexOf('rejected')>=0) return '你取消了授权';
+  if(raw.indexOf('chain')>=0||raw.indexOf('network')>=0) return '网络不匹配，请切到 BSC 主网';
+  if(raw.indexOf('timeout')>=0||raw.indexOf('network error')>=0||raw.indexOf('failed to fetch')>=0) return '网络超时，请检查网络后重试';
+  if(raw.indexOf('no provider')>=0||raw.indexOf('undefined')>=0) return '未检测到钱包，请在钱包App内打开';
+  if(raw.indexOf('locked')>=0) return '钱包未解锁，请先打开钱包App';
+  return (raw.length>40? raw.slice(0,40)+'…' : raw) || '未知错误';
+}
+
+/* 确保在 BSC 主网（chainId 56），自动添加/切换 */
+async function ensureBSCChain(){
+  const eth=window.ethereum; if(!eth) return;
+  const hexChain='0x'+Number(C.chainId).toString(16); // 0x38
+  try{
+    await eth.request({method:'wallet_switchEthereumChain',params:[{chainId:hexChain}]});
+  }catch(sw){
+    const code=sw && (sw.code||(sw.data&&sw.data.code));
+    // 4902 = 钱包未添加该链 → 自动添加
+    if(code===4902 || code===-32603 || String(sw.message||'').indexOf('Unrecognized')>=0){
+      await eth.request({method:'wallet_addEthereumChain',params:[{
+        chainId:hexChain,
+        chainName:'BNB Smart Chain Mainnet',
+        nativeCurrency:{name:'BNB',symbol:'BNB',decimals:18},
+        rpcUrls:['https://bsc-dataseed.binance.org/'],
+        blockExplorerUrls:['https://bscscan.com/']
+      }]});
+    }else{
+      throw sw;
+    }
+  }
 }
 
 function autoBindPending(){
